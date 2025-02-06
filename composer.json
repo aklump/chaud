@@ -1,0 +1,19 @@
+{
+  "name": "aklump/audio-switch",
+  "type": "project",
+  "autoload": {
+    "psr-4": {
+      "AKlump\\AudioSwitch\\": "src/"
+    }
+  },
+  "authors": [
+    {
+      "name": "Aaron Klump",
+      "email": "sourcecode@intheloftstudios.com"
+    }
+  ],
+  "require": {
+    "ext/json": "*"
+  },
+  "license": "BSD-3-Clause"
+}

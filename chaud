@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: BSD-3-Clause
+
+s="${BASH_SOURCE[0]}";[[ "$s" ]] || s="${(%):-%N}";while [ -h "$s" ];do d="$(cd -P "$(dirname "$s")" && pwd)";s="$(readlink "$s")";[[ $s != /* ]] && s="$d/$s";done;__DIR__=$(cd -P "$(dirname "$s")" && pwd)
+
+input="$1"
+
+option_json=$("$__DIR__/bin/get_device_json.php" "$input")
+
+[[ "$input" == '-c' ]] && "$__DIR__/bin/get_config_path.php" && exit 0
+
+[[ "$option_json" == '[]' ]] &&  echo "❌ \"$input\" is not an audio configuration." && exit 1
+
+(cd "$__DIR__" && ./bin/change_audio.php "$option_json")

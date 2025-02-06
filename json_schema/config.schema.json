@@ -1,0 +1,62 @@
+{
+  "type": "object",
+  "$def": {
+    "device": {
+      "type": "object",
+      "properties": {
+        "deviceId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "deviceId"
+      ]
+    }
+  },
+  "properties": {
+    "options": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "aliases": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "input": {
+            "$ref": "#/$def/device"
+          },
+          "output": {
+            "$ref": "#/$def/device"
+          }
+        },
+        "required": [
+          "label"
+        ],
+        "anyOf": [
+          {
+            "required": [
+              "input"
+            ]
+          },
+          {
+            "required": [
+              "output"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "required": [
+    "options"
+  ]
+}
