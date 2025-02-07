@@ -26,7 +26,9 @@ if [[ "$input" == '-c' ]]; then
   [[ "$CACHE_PATH" ]] && rm "$CACHE_PATH/"* &>/dev/null
 
   # Print the config getPath for user to open and edit.
-  echo "✏️ $("$__DIR__/bin/get_config_path.php")"
+  config_path="$("$__DIR__/bin/get_config_path.php")"
+  [ ! -f "$config_path" ] && $("$__DIR__/bin/install_config.php")
+  echo "✏️ $config_path"
   exit 0
 fi
 
