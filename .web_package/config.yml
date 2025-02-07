@@ -1,7 +1,7 @@
 create_tags: patch
 do_version_commit: true
 git_root: .
-master: master
+master: main
 patch_prefix: .
 preserve_patch_zero: true
 push_master: true
