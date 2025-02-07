@@ -46,13 +46,18 @@ class ConfigManager {
   }
 
   public function path(): string {
-    return $_SERVER['HOME'] . '/.com.aklump.chaud.json';
+    return $_SERVER['HOME'] . '/.chaud.json';
   }
 
   private function installDefaultConfig(string $config_path): bool {
     $default_config_path = __DIR__ . '/../install/config.json';
     if (!file_exists($default_config_path)) {
       throw new RuntimeException(sprintf('Missing default config: %s', $default_config_path));
+    }
+
+    $parent = dirname($config_path);
+    if (!file_exists($parent)) {
+      mkdir($parent, 0755, TRUE);
     }
 
     return copy($default_config_path, $config_path);
