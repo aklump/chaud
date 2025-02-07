@@ -29,7 +29,7 @@ The easiest engine to get working on OS X, is done like this:
 
 ```shell
 cd ./chaud
-yarn add macos-audio-devices^1.0
+yarn add macos-audio-devices@^1.0
 ```
 
 ## Configure
