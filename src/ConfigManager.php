@@ -41,7 +41,7 @@ class ConfigManager {
   private function installDefaultConfig(string $config_path): bool {
     $default_config_path = __DIR__ . '/../install/config.json';
     if (!file_exists($default_config_path)) {
-      throw new \RuntimeException(sprintf('Missing default config: %s', $default_config_path));
+      throw new RuntimeException(sprintf('Missing default config: %s', $default_config_path));
     }
 
     return copy($default_config_path, $config_path);

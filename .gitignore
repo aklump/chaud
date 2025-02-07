@@ -1,3 +1,7 @@
 vendor/
 config.json
+node_modules/
+yarn.lock
 
+# Dev
+bin/benchmark.php

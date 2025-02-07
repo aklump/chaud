@@ -4,20 +4,41 @@
 s="${BASH_SOURCE[0]}";[[ "$s" ]] || s="${(%):-%N}";while [ -h "$s" ];do d="$(cd -P "$(dirname "$s")" && pwd)";s="$(readlink "$s")";[[ $s != /* ]] && s="$d/$s";done;__DIR__=$(cd -P "$(dirname "$s")" && pwd)
 
 input="$1"
+cache_path="$("$__DIR__/bin/get_cache_path.php")"
 
-option_json=$("$__DIR__/bin/get_device_json.php" "$input")
+get_device_json() {
+  user_input="$1"
+
+  local IFS
+  for data in "${device_index[@]}"; do
+
+    # Split the input string by the delimiter "|"
+    IFS="|" read -r key json_data <<< "$data"
+
+    # Check if the parsed key matches the provided key
+    if [[ "$key" == "$user_input" ]]; then
+      # Extract and print the JSON data
+      echo "$json_data"
+      return
+    fi
+  done
+}
+
+# (Build then) load the device index.
+device_index_path="$cache_path/device_index.sh"
+[ ! -f "$device_index_path" ] && "$__DIR__/bin/create_device_index.php" "$device_index_path"
+source "$device_index_path"
 
 if [[ "$input" == '-c' ]]; then
-
   # Flush the cache
-  cache_path="$("$__DIR__/bin/get_cache_path.php")"
   [[ "$cache_path" ]] && rm "$cache_path/"*
 
-  # Print the config path for editing
+  # Print the config path for user to open and edit.
   echo "✏️ $("$__DIR__/bin/get_config_path.php")"
   exit 0
 fi
 
-[[ "$option_json" == '[]' ]] &&  echo "❌ \"$input\" is not an audio configuration." && exit 1
+option_json=$(get_device_json "$input")
+[[ ! "$option_json" ]] &&  echo "❌ \"$input\" is not an audio configuration." && exit 1
 
 (cd "$__DIR__" && ./bin/change_audio.php "$option_json")
