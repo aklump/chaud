@@ -85,10 +85,6 @@ Phone is active (🎤 External Microphone 🔈 External Headphones)
 
 * Sometimes you might need to *refresh the device* list by running `chaud -c`, which is the command for showing the configuration file. This command reloads system audio information as well.
 
-##
-
-/Applications/MAMP/bin/php/php7.4.33/bin/php
-export PATH="~/bin/php:$PATH";~/bin/chaud "{query}"
 
 ## Audio Engines
 
