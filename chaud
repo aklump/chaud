@@ -37,5 +37,5 @@ source "$change_functions_path"
 
 # Make the change.
 change_function=$(get_function_by_input "$input")
-! declare -F $change_function > /dev/null && echo "❌ Unknown audio configuration: $input." && exit 1
+! declare -F $change_function > /dev/null && echo "❌ Unknown audio configuration: $input" && exit 1
 $change_function

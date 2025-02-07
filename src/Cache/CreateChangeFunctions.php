@@ -1,4 +1,5 @@
 <?php
+// SPDX-License-Identifier: BSD-3-Clause
 
 namespace AKlump\AudioSwitch\Cache;
 
@@ -13,6 +14,18 @@ class CreateChangeFunctions {
     $this->engine = $engine;
   }
 
+
+  /**
+   * This class is responsible for generating bash functions
+   * that can be used to change audio devices dynamically.
+   *
+   * It uses the provided EngineInterface implementation to get the appropriate
+   * commands to change input and output devices, as well as a ConfigManager
+   * to retrieve device configuration.
+   *
+   * The generated bash functions are written to the specified file path,
+   * enabling users to execute these functions directly from the command line.
+   */
   public function __invoke(string $device_index_path): void {
     $aliases = [];
     $names = [];

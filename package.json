@@ -1,4 +1,5 @@
 {
+  "license": "BSD-3-Clause",
   "dependencies": {
     "macos-audio-devices": "^1.4.0"
   }

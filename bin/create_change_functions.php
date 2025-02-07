@@ -6,7 +6,6 @@ use AKlump\AudioSwitch\Cache\CacheManager;
 use AKlump\AudioSwitch\Cache\CreateChangeFunctions;
 use AKlump\AudioSwitch\GetAudioEngine;
 
-
 require_once __DIR__ . '/../vendor/autoload.php';
 
 $change_scripts_path = $argv[1] ?? '';

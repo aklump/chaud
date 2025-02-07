@@ -11,6 +11,15 @@ use AKlump\AudioSwitch\Engine\SwitchAudioOSXEngine;
 
 class GetAudioEngine {
 
+  /**
+   * Determines and returns the appropriate audio engine based on priority.
+   *
+   * This method evaluates a series of audio engine implementations in a
+   * priority-defined order and selects the first one that applies to the
+   * current context. If no engine is applicable, it will return NULL.
+   *
+   * @return EngineInterface|null The applicable audio engine or NULL if no engine applies.
+   */
   public function __invoke(): ?EngineInterface {
     /** @var MacOSAudioDevicesEngine|SwitchAudioCommandEngine|SwitchAudioOSXEngine[] $engines_by_priority The first that applies() === TRUE will be used. */
     $engines_by_priority = [

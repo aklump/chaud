@@ -6,6 +6,16 @@ namespace AKlump\AudioSwitch;
 use AKlump\AudioSwitch\Cache\CacheManager;
 use RuntimeException;
 
+
+/**
+ * Manages configuration for the application.
+ *
+ * This class is responsible for loading, caching, and installing the configuration
+ * file used by the application. If a configuration file does not already exist,
+ * the class will attempt to use a default set of configuration values.
+ *
+ * @package AKlump\AudioSwitch
+ */
 class ConfigManager {
 
   /**
