@@ -3,6 +3,8 @@
 
 namespace AKlump\AudioSwitch\Engine;
 
+use AKlump\AudioSwitch\Exception\EngineFeatureException;
+
 /**
  * Does not provide current device info.
  * Does not provide volume control.
@@ -29,4 +31,11 @@ class SwitchAudioCommandEngine implements EngineInterface {
     return 'https://www.macscripter.net/t/switchaudio-a-command-line-tool-to-change-the-audio-input-and-output-device/75630/1';
   }
 
+  public function getCommandSetOutputLevel(string $device_name, float $volume): string {
+    throw new EngineFeatureException("SwitchAudioCommandEngine does not support output levels.");
+  }
+
+  public function getCommandSetInputLevel(string $device_name, float $volume): string {
+    throw new EngineFeatureException("SwitchAudioCommandEngine does not support input levels.");
+  }
 }

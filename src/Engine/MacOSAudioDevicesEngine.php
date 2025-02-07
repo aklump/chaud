@@ -7,6 +7,7 @@ use AKlump\AudioSwitch\Cache\CacheManager;
 use AKlump\AudioSwitch\DeviceTypes;
 use AKlump\AudioSwitch\Exception\AudioChangeException;
 use ReflectionClass;
+use AKlump\AudioSwitch\Exception\EngineFeatureException;
 
 class MacOSAudioDevicesEngine implements EngineInterface {
 
@@ -38,13 +39,23 @@ class MacOSAudioDevicesEngine implements EngineInterface {
   public function getCommandChangeInput(string $device_name): string {
     $device = $this->getDeviceByName(DeviceTypes::INPUT, $device_name);
 
-    return sprintf("%s input set '%d'", $this->script, $device['id']);
+    return sprintf("%s input set %d", $this->script, $device['id']);
   }
 
   public function getCommandChangeOutput(string $device_name): string {
     $device = $this->getDeviceByName(DeviceTypes::OUTPUT, $device_name);
 
-    return sprintf("%s output set '%d'", $this->script, $device['id']);
+    return sprintf("%s output set %d", $this->script, $device['id']);
+  }
+
+  public function getCommandSetOutputLevel(string $device_name, float $limit): string {
+    $device = $this->getDeviceByName(DeviceTypes::OUTPUT, $device_name);
+
+    return sprintf("%s volume set %d %f", $this->script, $device['id'], $limit);
+  }
+
+  public function getCommandSetInputLevel(string $device_name, float $limit): string {
+    throw new EngineFeatureException("MacOSAudioDevicesEngine does not support input levels.");
   }
 
   public function getHomepage(): string {
@@ -85,4 +96,5 @@ class MacOSAudioDevicesEngine implements EngineInterface {
 
     return $device ?? [];
   }
+
 }

@@ -57,4 +57,5 @@ class ConfigManager {
 
     return copy($default_config_path, $config_path);
   }
+
 }

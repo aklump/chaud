@@ -4,7 +4,10 @@
 namespace AKlump\AudioSwitch\Cache;
 
 use AKlump\AudioSwitch\ConfigManager;
+use AKlump\AudioSwitch\DeviceTypes;
 use AKlump\AudioSwitch\Engine\EngineInterface;
+use AKlump\AudioSwitch\Exception\EngineFeatureException;
+use AKlump\AudioSwitch\GetDeviceLevel;
 
 class CreateChangeFunctions {
 
@@ -13,7 +16,6 @@ class CreateChangeFunctions {
   public function __construct(EngineInterface $engine) {
     $this->engine = $engine;
   }
-
 
   /**
    * This class is responsible for generating bash functions
@@ -50,9 +52,34 @@ class CreateChangeFunctions {
   }
 
   private function getFunctionCode(string $func_name, array $device): string {
+    $get_level = new GetDeviceLevel();
+
     $code = sprintf('%s(){', $func_name) . PHP_EOL;
     $code .= sprintf('  %s &> /dev/null', $this->engine->getCommandChangeInput($device['input']['deviceId'])) . PHP_EOL;
     $code .= sprintf('  %s &> /dev/null', $this->engine->getCommandChangeOutput($device['output']['deviceId'])) . PHP_EOL;
+
+    $level = $get_level($device, DeviceTypes::INPUT);
+    if (isset($level)) {
+      try {
+        $code .= sprintf('  %s &> /dev/null',
+            $this->engine->getCommandSetInputLevel($device['input']['deviceId'], $level)) . PHP_EOL;
+      }
+      catch (EngineFeatureException $exception) {
+        // Level feature not supported by engine.
+      }
+    }
+
+    $level = $get_level($device, DeviceTypes::OUTPUT);
+    if (isset($level)) {
+      try {
+        $code .= sprintf('  %s &> /dev/null',
+            $this->engine->getCommandSetOutputLevel($device['output']['deviceId'], $level)) . PHP_EOL;
+      }
+      catch (EngineFeatureException $exception) {
+        // Level feature not supported by engine.
+      }
+    }
+
     $code .= '  ' . sprintf('echo "%s"', $this->getUserMessage($device)) . PHP_EOL;
     $code .= '}' . PHP_EOL;
 
@@ -69,4 +96,5 @@ class CreateChangeFunctions {
       $device['input']['deviceId'],
       $device['output']['deviceId']);
   }
+
 }

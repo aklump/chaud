@@ -3,6 +3,8 @@
 
 namespace AKlump\AudioSwitch\Engine;
 
+use AKlump\AudioSwitch\Exception\EngineFeatureException;
+
 class SwitchAudioOSXEngine implements EngineInterface {
 
   /**
@@ -26,5 +28,13 @@ class SwitchAudioOSXEngine implements EngineInterface {
 
   public function getHomepage(): string {
     return 'https://github.com/deweller/switchaudio-osx';
+  }
+
+  public function getCommandSetOutputLevel(string $device_name, float $volume): string {
+    throw new EngineFeatureException("SwitchAudioOSXEngine does not support output levels.");
+  }
+
+  public function getCommandSetInputLevel(string $device_name, float $volume): string {
+    throw new EngineFeatureException("SwitchAudioOSXEngine does not support input levels.");
   }
 }
