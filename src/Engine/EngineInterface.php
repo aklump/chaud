@@ -14,4 +14,6 @@ interface EngineInterface {
   public function setInput(string $device_name);
 
   public function setOutput(string $device_name);
+
+  public function getHomepage(): string;
 }

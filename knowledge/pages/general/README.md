@@ -53,3 +53,7 @@ $ chaudio
 Speakerphone is active (🎤 USB audio CODEC 🔈 MacBook Pro Speakers)
 $
 ```
+
+## Troubleshooting
+
+* Sometimes you might need to *refresh the device* list by running `chaud -c`, which is the command for showing the configuration file. This command reloads system audio information as well.

@@ -4,13 +4,10 @@
 namespace AKlump\AudioSwitch\Engine;
 
 /**
- * @url https://www.macscripter.net/t/switchaudio-a-command-line-tool-to-change-the-audio-input-and-output-device/75630/1
- * @url https://klieme.ch/pub/SwitchAudio.dmg
- *
  * Does not provide current device info.
  * Does not provide volume control.
  */
-class SwitchAudioCommand implements EngineInterface {
+class SwitchAudioCommandEngine implements EngineInterface {
 
   private string $script;
 
@@ -35,4 +32,9 @@ class SwitchAudioCommand implements EngineInterface {
   public function getOutput(): string {
     return '';
   }
+
+  public function getHomepage(): string {
+    return 'https://www.macscripter.net/t/switchaudio-a-command-line-tool-to-change-the-audio-input-and-output-device/75630/1';
+  }
+
 }

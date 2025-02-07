@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "macos-audio-devices": "^1.4.0"
+  }
+}

@@ -3,10 +3,7 @@
 
 namespace AKlump\AudioSwitch\Engine;
 
-/**
- * @url https://github.com/deweller/switchaudio-osx
- */
-class SwitchAudioOSX implements EngineInterface {
+class SwitchAudioOSXEngine implements EngineInterface {
 
   /**
    * @var false|string
@@ -33,5 +30,9 @@ class SwitchAudioOSX implements EngineInterface {
 
   public function setOutput(string $device_name) {
     exec(sprintf('%s -s "%s" -t output', $this->script, $device_name));
+  }
+
+  public function getHomepage(): string {
+    return 'https://github.com/deweller/switchaudio-osx';
   }
 }

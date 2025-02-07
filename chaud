@@ -7,7 +7,16 @@ input="$1"
 
 option_json=$("$__DIR__/bin/get_device_json.php" "$input")
 
-[[ "$input" == '-c' ]] && "$__DIR__/bin/get_config_path.php" && exit 0
+if [[ "$input" == '-c' ]]; then
+
+  # Flush the cache
+  cache_path="$("$__DIR__/bin/get_cache_path.php")"
+  [[ "$cache_path" ]] && rm "$cache_path/"*
+
+  # Print the config path for editing
+  echo "✏️ $("$__DIR__/bin/get_config_path.php")"
+  exit 0
+fi
 
 [[ "$option_json" == '[]' ]] &&  echo "❌ \"$input\" is not an audio configuration." && exit 1
 
