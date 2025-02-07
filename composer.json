@@ -15,5 +15,9 @@
   "require": {
     "ext-json": "*"
   },
-  "license": "BSD-3-Clause"
+  "license": "BSD-3-Clause",
+  "post-create-project-cmd": [
+    "type yarn >/dev/null 2>&1 && yarn",
+    "type npm >/dev/null 2>&1 && npm install"
+  ]
 }

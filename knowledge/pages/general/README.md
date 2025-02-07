@@ -13,14 +13,15 @@ A configurable, command-line tool to easily switch between different audio confi
 * PHP
 * Yarn or NPM
 
+
+
 ## Install
-
-Assuming `~/bin` is in your `$PATH` variable, create a symlink to wherever you've installed this app.
-
-```shell
-cd ~/bin
-ln -s /Users/aklump/Code/Packages/mac/chaudio/app/chaudio .
-```
+* `{{ composer.create_project|raw }}`
+* Assuming `~/bin` is in your `$PATH` variable, create a symlink to wherever you've installed this app.
+  ```shell
+  cd ~/bin
+  ln -s /Users/aklump/Code/Packages/mac/chaudio/app/chaudio .
+  ```
 
 This will allow you to call `chaudio <LABEL>` from anywhere
 
