@@ -23,7 +23,7 @@ export CACHE_PATH
 
 if [[ "$input" == '-c' ]]; then
   # Flush the cache so new config will be used, if it is changed.
-  [[ "$CACHE_PATH" ]] && rm "$CACHE_PATH/"*
+  [[ "$CACHE_PATH" ]] && rm "$CACHE_PATH/"* &>/dev/null
 
   # Print the config getPath for user to open and edit.
   echo "✏️ $("$__DIR__/bin/get_config_path.php")"
