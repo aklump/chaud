@@ -18,8 +18,7 @@
   "license": "BSD-3-Clause",
   "scripts": {
     "post-create-project-cmd": [
-      "type yarn >/dev/null 2>&1 && yarn",
-      "type npm >/dev/null 2>&1 && npm install"
+      "type yarn >/dev/null 2>&1 && yarn || type npm >/dev/null 2>&1 && npm install"
     ]
   }
 }
