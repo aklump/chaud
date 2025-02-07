@@ -1,9 +1,9 @@
 <?php
 // SPDX-License-Identifier: BSD-3-Clause
 
-namespace AKlump\AudioSwitch\Engine;
+namespace AKlump\ChangeAudio\Engine;
 
-use AKlump\AudioSwitch\Exception\EngineFeatureException;
+use AKlump\ChangeAudio\Exception\EngineFeatureException;
 
 /**
  * Does not provide current device info.

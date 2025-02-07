@@ -1,13 +1,13 @@
 <?php
 // SPDX-License-Identifier: BSD-3-Clause
 
-namespace AKlump\AudioSwitch;
+namespace AKlump\ChangeAudio;
 
-use AKlump\AudioSwitch\Cache\CacheManager;
-use AKlump\AudioSwitch\Engine\EngineInterface;
-use AKlump\AudioSwitch\Engine\MacOSAudioDevicesEngine;
-use AKlump\AudioSwitch\Engine\SwitchAudioCommandEngine;
-use AKlump\AudioSwitch\Engine\SwitchAudioOSXEngine;
+use AKlump\ChangeAudio\Cache\CacheManager;
+use AKlump\ChangeAudio\Engine\EngineInterface;
+use AKlump\ChangeAudio\Engine\MacOSAudioDevicesEngine;
+use AKlump\ChangeAudio\Engine\SwitchAudioCommandEngine;
+use AKlump\ChangeAudio\Engine\SwitchAudioOSXEngine;
 
 class GetAudioEngine {
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace AKlump\AudioSwitch;
+namespace AKlump\ChangeAudio;
 
 class GetDeviceLevel {
 

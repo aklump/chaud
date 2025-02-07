@@ -1,9 +1,9 @@
 {
-  "name": "aklump/audio-switch",
+  "name": "aklump/change-audio",
   "type": "project",
   "autoload": {
     "psr-4": {
-      "AKlump\\AudioSwitch\\": "src/"
+      "AKlump\\ChangeAudio\\": "src/"
     }
   },
   "authors": [
@@ -19,6 +19,7 @@
   "scripts": {
     "post-create-project-cmd": [
       "type yarn >/dev/null 2>&1 && yarn || type npm >/dev/null 2>&1 && npm install"
+      ""
     ]
   }
 }

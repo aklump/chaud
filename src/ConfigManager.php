@@ -1,9 +1,9 @@
 <?php
 // SPDX-License-Identifier: BSD-3-Clause
 
-namespace AKlump\AudioSwitch;
+namespace AKlump\ChangeAudio;
 
-use AKlump\AudioSwitch\Cache\CacheManager;
+use AKlump\ChangeAudio\Cache\CacheManager;
 use RuntimeException;
 
 
@@ -14,12 +14,12 @@ use RuntimeException;
  * file used by the application. If a configuration file does not already exist,
  * the class will attempt to use a default set of configuration values.
  *
- * @package AKlump\AudioSwitch
+ * @package AKlump\ChangeAudio
  */
 class ConfigManager {
 
   /**
-   * @var \AKlump\AudioSwitch\Cache\CacheManager
+   * @var \AKlump\ChangeAudio\Cache\CacheManager
    */
   private CacheManager $cache;
 

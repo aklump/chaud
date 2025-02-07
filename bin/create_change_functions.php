@@ -2,9 +2,9 @@
 <?php
 // SPDX-License-Identifier: BSD-3-Clause
 
-use AKlump\AudioSwitch\Cache\CacheManager;
-use AKlump\AudioSwitch\Cache\CreateChangeFunctions;
-use AKlump\AudioSwitch\GetAudioEngine;
+use AKlump\ChangeAudio\Cache\CacheManager;
+use AKlump\ChangeAudio\Cache\CreateChangeFunctions;
+use AKlump\ChangeAudio\GetAudioEngine;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 

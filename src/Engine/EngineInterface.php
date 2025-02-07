@@ -1,7 +1,7 @@
 <?php
 // SPDX-License-Identifier: BSD-3-Clause
 
-namespace AKlump\AudioSwitch\Engine;
+namespace AKlump\ChangeAudio\Engine;
 
 interface EngineInterface {
 
@@ -13,22 +13,22 @@ interface EngineInterface {
    *
    * @return string
    *
-   * @throws \AKlump\AudioSwitch\Exception\EngineFeatureException;
+   * @throws \AKlump\ChangeAudio\Exception\EngineFeatureException;
    */
   public function getCommandSetOutputLevel(string $device_name, float $volume): string;
 
   /**
-   * @throws \AKlump\AudioSwitch\Exception\EngineFeatureException;
+   * @throws \AKlump\ChangeAudio\Exception\EngineFeatureException;
    */
   public function getCommandSetInputLevel(string $device_name, float $volume): string;
 
   /**
-   * @throws \AKlump\AudioSwitch\Exception\EngineFeatureException;
+   * @throws \AKlump\ChangeAudio\Exception\EngineFeatureException;
    */
   public function getCommandChangeInput(string $device_name): string;
 
   /**
-   * @throws \AKlump\AudioSwitch\Exception\EngineFeatureException;
+   * @throws \AKlump\ChangeAudio\Exception\EngineFeatureException;
    */
   public function getCommandChangeOutput(string $device_name): string;
 

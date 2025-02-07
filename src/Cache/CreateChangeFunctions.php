@@ -1,13 +1,13 @@
 <?php
 // SPDX-License-Identifier: BSD-3-Clause
 
-namespace AKlump\AudioSwitch\Cache;
+namespace AKlump\ChangeAudio\Cache;
 
-use AKlump\AudioSwitch\ConfigManager;
-use AKlump\AudioSwitch\DeviceTypes;
-use AKlump\AudioSwitch\Engine\EngineInterface;
-use AKlump\AudioSwitch\Exception\EngineFeatureException;
-use AKlump\AudioSwitch\GetDeviceLevel;
+use AKlump\ChangeAudio\ConfigManager;
+use AKlump\ChangeAudio\DeviceTypes;
+use AKlump\ChangeAudio\Engine\EngineInterface;
+use AKlump\ChangeAudio\Exception\EngineFeatureException;
+use AKlump\ChangeAudio\GetDeviceLevel;
 
 class CreateChangeFunctions {
 

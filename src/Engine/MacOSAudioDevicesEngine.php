@@ -1,13 +1,13 @@
 <?php
 // SPDX-License-Identifier: BSD-3-Clause
 
-namespace AKlump\AudioSwitch\Engine;
+namespace AKlump\ChangeAudio\Engine;
 
-use AKlump\AudioSwitch\Cache\CacheManager;
-use AKlump\AudioSwitch\DeviceTypes;
-use AKlump\AudioSwitch\Exception\AudioChangeException;
+use AKlump\ChangeAudio\Cache\CacheManager;
+use AKlump\ChangeAudio\DeviceTypes;
+use AKlump\ChangeAudio\Exception\AudioChangeException;
 use ReflectionClass;
-use AKlump\AudioSwitch\Exception\EngineFeatureException;
+use AKlump\ChangeAudio\Exception\EngineFeatureException;
 
 class MacOSAudioDevicesEngine implements EngineInterface {
 
