@@ -5,6 +5,8 @@ tags: ''
 
 # chaudio
 
+![chaud](../../images/chaud.jpg)
+
 A configurable, command-line tool to easily switch between different audio configurations. This is different from other solutions because you create names (and aliases) that represent input/output configurations.
 
 ## Requirements
@@ -73,3 +75,5 @@ This is a BASH and PHP wrapper around several known audio engines, which do the 
 * https://github.com/deweller/switchaudio-osx
 * https://github.com/hladik-dan/switch-audio?ref=iosexample.com
 * https://retina.studio/ears/download/ [not yet implemented]
+
+{{ funding|raw }}
