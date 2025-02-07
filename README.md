@@ -1,4 +1,4 @@
-# chaudio
+# Change Audio (chaud)
 
 ![chaud](images/chaud.jpg)
 
@@ -13,7 +13,7 @@ A configurable, command-line tool to easily switch between different audio confi
 ## Install
 
 * In terminal, change to your preferred installation location.
-* `composer create-project aklump/chaud:^0.0 --repository="{\"type\":\"github\",\"url\": \"https://github.com/aklump/chaudio\"}"`
+* `composer create-project aklump/chaud:^0.0 --repository="{\"type\":\"github\",\"url\": \"https://github.com/aklump/chaud\"}"`
 * Assuming `~/bin` is in your `$PATH` variable, create a symlink to wherever you've installed this app.
   ```shell
   cd ~/bin
