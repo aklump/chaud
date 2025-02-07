@@ -2,7 +2,6 @@
 
 namespace AKlump\AudioSwitch\Cache;
 
-use AKlump\AudioSwitch\CacheManager;
 use AKlump\AudioSwitch\ConfigManager;
 
 class CreateDeviceIndex {

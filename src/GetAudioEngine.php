@@ -3,6 +3,7 @@
 
 namespace AKlump\AudioSwitch;
 
+use AKlump\AudioSwitch\Cache\CacheManager;
 use AKlump\AudioSwitch\Engine\EngineInterface;
 use AKlump\AudioSwitch\Engine\MacOSAudioDevicesEngine;
 use AKlump\AudioSwitch\Engine\SwitchAudioCommandEngine;

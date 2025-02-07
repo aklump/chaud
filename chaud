@@ -1,44 +1,41 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: BSD-3-Clause
 
-s="${BASH_SOURCE[0]}";[[ "$s" ]] || s="${(%):-%N}";while [ -h "$s" ];do d="$(cd -P "$(dirname "$s")" && pwd)";s="$(readlink "$s")";[[ $s != /* ]] && s="$d/$s";done;__DIR__=$(cd -P "$(dirname "$s")" && pwd)
+get_function_by_input() {
+  local user_input="$1"
 
-input="$1"
-cache_path="$("$__DIR__/bin/get_cache_path.php")"
-
-get_device_json() {
-  user_input="$1"
-
-  local IFS
-  for data in "${device_index[@]}"; do
-
-    # Split the input string by the delimiter "|"
-    IFS="|" read -r key json_data <<< "$data"
-
-    # Check if the parsed key matches the provided key
-    if [[ "$key" == "$user_input" ]]; then
-      # Extract and print the JSON data
-      echo "$json_data"
-      return
-    fi
-  done
+  local suffix=$(echo "$user_input" | tr '[:upper:]' '[:lower:]' | tr ' ' '_')
+  echo "change_to_$suffix"
 }
 
-# (Build then) load the device index.
-device_index_path="$cache_path/device_index.sh"
-[ ! -f "$device_index_path" ] && "$__DIR__/bin/create_device_index.php" "$device_index_path"
-source "$device_index_path"
+s="${BASH_SOURCE[0]}";[[ "$s" ]] || s="${(%):-%N}";while [ -h "$s" ];do d="$(cd -P "$(dirname "$s")" && pwd)";s="$(readlink "$s")";[[ $s != /* ]] && s="$d/$s";done;__DIR__=$(cd -P "$(dirname "$s")" && pwd)
+
+# Validate the input
+input="$1"
+if [[ ! "$input" ]]; then
+  echo "❌ Missing argument - audio configuration name or alias."
+  exit 1
+fi
+
+CACHE_PATH="${TMPDIR:-${TEMP:-/tmp}}"
+CACHE_PATH="${CACHE_PATH%%/}/com.aklump.chaud"
+export CACHE_PATH
 
 if [[ "$input" == '-c' ]]; then
-  # Flush the cache
-  [[ "$cache_path" ]] && rm "$cache_path/"*
+  # Flush the cache so new config will be used, if it is changed.
+  [[ "$CACHE_PATH" ]] && rm "$CACHE_PATH/"*
 
-  # Print the config path for user to open and edit.
+  # Print the config getPath for user to open and edit.
   echo "✏️ $("$__DIR__/bin/get_config_path.php")"
   exit 0
 fi
 
-option_json=$(get_device_json "$input")
-[[ ! "$option_json" ]] &&  echo "❌ \"$input\" is not an audio configuration." && exit 1
+# (Generate and) load the functions to change the audio by input.
+change_functions_path="$CACHE_PATH/change_audio.sh"
+[ ! -f "$change_functions_path" ] && "$__DIR__/bin/create_change_functions.php" "$change_functions_path"
+source "$change_functions_path"
 
-(cd "$__DIR__" && ./bin/change_audio.php "$option_json")
+# Make the change.
+change_function=$(get_function_by_input "$input")
+! declare -F $change_function > /dev/null && echo "❌ Unknown audio configuration: $input." && exit 1
+$change_function

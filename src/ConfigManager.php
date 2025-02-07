@@ -3,12 +3,13 @@
 
 namespace AKlump\AudioSwitch;
 
+use AKlump\AudioSwitch\Cache\CacheManager;
 use RuntimeException;
 
 class ConfigManager {
 
   /**
-   * @var \AKlump\AudioSwitch\CacheManager
+   * @var \AKlump\AudioSwitch\Cache\CacheManager
    */
   private CacheManager $cache;
 
@@ -18,7 +19,7 @@ class ConfigManager {
 
   public function get(): array {
     $config = [];
-    $config_include = $this->cache->path() . '/config.php';
+    $config_include = $this->cache->getPath() . '/config.php';
     if (file_exists($config_include)) {
       $config = require $config_include;
     }

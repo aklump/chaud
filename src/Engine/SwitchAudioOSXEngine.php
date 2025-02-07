@@ -16,20 +16,12 @@ class SwitchAudioOSXEngine implements EngineInterface {
     return is_executable($this->script);
   }
 
-  public function getInput(): string {
-    return exec(sprintf('%s -c -t input', $this->script));
+  public function getCommandChangeInput(string $device_name): string {
+    return sprintf('%s -s "%s" -t input', $this->script, $device_name);
   }
 
-  public function getOutput(): string {
-    return exec(sprintf('%s -c -t output', $this->script));
-  }
-
-  public function setInput(string $device_name) {
-    exec(sprintf('%s -s "%s" -t input', $this->script, $device_name));
-  }
-
-  public function setOutput(string $device_name) {
-    exec(sprintf('%s -s "%s" -t output', $this->script, $device_name));
+  public function getCommandChangeOutput(string $device_name): string {
+    return sprintf('%s -s "%s" -t output', $this->script, $device_name);
   }
 
   public function getHomepage(): string {
