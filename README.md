@@ -47,12 +47,11 @@ yarn add macos-audio-devices@^1.0
                 "p"
             ],
             "input": {
-                "deviceId": "External Microphone",
-                "level": 50
+                "deviceId": "External Microphone"
             },
             "output": {
                 "deviceId": "External Headphones",
-                "level": 50
+                "level": 0.25
             }
         },
         {
@@ -61,12 +60,10 @@ yarn add macos-audio-devices@^1.0
                 "sp"
             ],
             "input": {
-                "deviceId": "MacBook Pro Microphone",
-                "level": 50
+                "deviceId": "MacBook Pro Microphone"
             },
             "output": {
-                "deviceId": "MacBook Pro Speakers",
-                "level": 50
+                "deviceId": "MacBook Pro Speakers"
             }
         }
     ]
