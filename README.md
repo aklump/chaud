@@ -23,8 +23,8 @@ A configurable, command-line tool to easily switch between different audio confi
 The easiest engine to get working on OS X, is done like this:
 
 ```shell
-cd aud
-yarn add macos-audio-devices:^1.0
+cd ./chaud
+yarn add macos-audio-devices^1.0
 ```
 
 ## Configure
@@ -98,4 +98,4 @@ This is a BASH and PHP wrapper around several known audio engines, which do the 
 * https://github.com/karaggeorge/macos-audio-devices
 * https://github.com/deweller/switchaudio-osx
 * https://github.com/hladik-dan/switch-audio?ref=iosexample.com
-* https://retina.studio/ears/download/
+* https://retina.studio/ears/download/ [not yet implemented]
