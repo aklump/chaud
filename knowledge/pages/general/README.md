@@ -58,10 +58,11 @@ $ chaud p
 Phone is active (🎤 External Microphone 🔈 External Headphones)
 ```
 
+You may list options with `chaud -l`
+
 ## Troubleshooting
 
 * Sometimes you might need to *refresh the device* list by running `chaud -c`, which is the command for showing the configuration file. This command reloads system audio information as well.
-
 
 ## Audio Engines
 
