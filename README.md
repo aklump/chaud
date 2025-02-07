@@ -31,7 +31,7 @@ yarn add macos-audio-devices@^1.0
 
 ## Configure
 
-* Execute `chaudio -c` to print the configuration filepath.
+* Execute `chaud -c` to print the configuration filepath.
 * Open and modify the configuration.
 * A single option may be defined as:
     * input & output
@@ -75,9 +75,9 @@ yarn add macos-audio-devices@^1.0
 This shows using the label and alias argument.
 
 ```
-$ chaudio phone
+$ chaud phone
 Phone is active (🎤 External Microphone 🔈 External Headphones)
-$ chaudio p
+$ chaud p
 Phone is active (🎤 External Microphone 🔈 External Headphones)
 ```
 
