@@ -7,6 +7,12 @@ tags: ''
 
 A configurable, command-line tool to easily switch between different audio configurations. This is different from other solutions because you create names (and aliases) that represent input/output configurations.
 
+## Requirements
+
+* BASH
+* PHP
+* Yarn or NPM
+
 ## Install
 
 Assuming `~/bin` is in your `$PATH` variable, create a symlink to wherever you've installed this app.
@@ -42,18 +48,10 @@ $ chaudio p
 Phone is active (🎤 External Microphone 🔈 External Headphones)
 ```
 
-### Without an Argument
-
-This will switch to the next option. When you have only two options this works as a toggle.
-
-```shell
-$ chaudio
-Phone is active (🎤 External Microphone 🔈 External Headphones)
-$ chaudio
-Speakerphone is active (🎤 USB audio CODEC 🔈 MacBook Pro Speakers)
-$
-```
-
 ## Troubleshooting
 
 * Sometimes you might need to *refresh the device* list by running `chaud -c`, which is the command for showing the configuration file. This command reloads system audio information as well.
+
+##
+/Applications/MAMP/bin/php/php7.4.33/bin/php
+export PATH="~/bin/php:$PATH";~/bin/chaud "{query}"

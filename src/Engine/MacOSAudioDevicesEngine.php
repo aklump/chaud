@@ -1,10 +1,13 @@
 <?php
+// SPDX-License-Identifier: BSD-3-Clause
 
 namespace AKlump\AudioSwitch\Engine;
 
-use AKlump\AudioSwitch\CacheManager;
+use AKlump\AudioSwitch\Cache\CacheManager;
 use AKlump\AudioSwitch\DeviceTypes;
 use AKlump\AudioSwitch\Exception\AudioChangeException;
+use ReflectionClass;
+use AKlump\AudioSwitch\Exception\EngineFeatureException;
 
 class MacOSAudioDevicesEngine implements EngineInterface {
 
@@ -33,28 +36,26 @@ class MacOSAudioDevicesEngine implements EngineInterface {
     }
   }
 
-  public function getInput(): string {
-    return '';
-  }
-
-  public function getOutput(): string {
-    return '';
-  }
-
-  public function setInput(string $device_name) {
+  public function getCommandChangeInput(string $device_name): string {
     $device = $this->getDeviceByName(DeviceTypes::INPUT, $device_name);
-    exec(sprintf("%s input set '%d'", $this->script, $device['id']), $output);
-    if (empty($output)) {
-      throw new AudioChangeException();
-    }
+
+    return sprintf("%s input set %d", $this->script, $device['id']);
   }
 
-  public function setOutput(string $device_name) {
+  public function getCommandChangeOutput(string $device_name): string {
     $device = $this->getDeviceByName(DeviceTypes::OUTPUT, $device_name);
-    exec(sprintf("%s output set '%d'", $this->script, $device['id']), $output);
-    if (empty($output)) {
-      throw new AudioChangeException();
-    }
+
+    return sprintf("%s output set %d", $this->script, $device['id']);
+  }
+
+  public function getCommandSetOutputLevel(string $device_name, float $limit): string {
+    $device = $this->getDeviceByName(DeviceTypes::OUTPUT, $device_name);
+
+    return sprintf("%s volume set %d %f", $this->script, $device['id'], $limit);
+  }
+
+  public function getCommandSetInputLevel(string $device_name, float $limit): string {
+    throw new EngineFeatureException("MacOSAudioDevicesEngine does not support input levels.");
   }
 
   public function getHomepage(): string {
@@ -63,7 +64,7 @@ class MacOSAudioDevicesEngine implements EngineInterface {
 
   private function getDeviceByName(string $device_type, string $name, bool $try_flush = TRUE): array {
     $device_index = [];
-    $device_index_include = $this->cache->path() . '/device_index_include.' . $device_type . '.php';
+    $device_index_include = $this->cache->getPath() . '/' . (new ReflectionClass($this))->getShortName() . '.device_index_include.' . $device_type . '.php';
     if (file_exists($device_index_include)) {
       $device_index = require $device_index_include;
     }
@@ -89,10 +90,11 @@ class MacOSAudioDevicesEngine implements EngineInterface {
 
     $device = reset($device) ?? NULL;
     if (!$device && $try_flush) {
-      $this->cache->flush();
+      unlink($device_index_include);
       $device = $this->getDeviceByName($device_type, $name, FALSE);
     }
 
-    return $device;
+    return $device ?? [];
   }
+
 }

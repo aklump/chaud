@@ -3,6 +3,6 @@
 
 namespace AKlump\AudioSwitch\Exception;
 
-class AudioChangeException extends \RuntimeException {
+class EngineFeatureException extends \RuntimeException {
 
 }

@@ -7,13 +7,30 @@ interface EngineInterface {
 
   public function applies(): bool;
 
-  public function getInput(): string;
+  /**
+   * @param string $device_name
+   * @param float $volume A value from 0 to 1.
+   *
+   * @return string
+   *
+   * @throws \AKlump\AudioSwitch\Exception\EngineFeatureException;
+   */
+  public function getCommandSetOutputLevel(string $device_name, float $volume): string;
 
-  public function getOutput(): string;
+  /**
+   * @throws \AKlump\AudioSwitch\Exception\EngineFeatureException;
+   */
+  public function getCommandSetInputLevel(string $device_name, float $volume): string;
 
-  public function setInput(string $device_name);
+  /**
+   * @throws \AKlump\AudioSwitch\Exception\EngineFeatureException;
+   */
+  public function getCommandChangeInput(string $device_name): string;
 
-  public function setOutput(string $device_name);
+  /**
+   * @throws \AKlump\AudioSwitch\Exception\EngineFeatureException;
+   */
+  public function getCommandChangeOutput(string $device_name): string;
 
   public function getHomepage(): string;
 }

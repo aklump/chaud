@@ -6,6 +6,12 @@
       "properties": {
         "deviceId": {
           "type": "string"
+        },
+        "level": {
+          "type": "number",
+          "description": "A value from 0 to 1 for setting the device level.",
+          "minimum": 0,
+          "maximum": 1
         }
       },
       "required": [
