@@ -4,6 +4,27 @@
 
 A configurable, command-line tool to easily switch between different audio configurations. This is different from other solutions because you create names (and aliases) that represent input/output configurations.
 
+## Usage
+
+These two commands will change the audio configuration between _Phone_ and _Speakerphone_.
+
+```
+$ chaud phone
+Phone is active (🎤 External Microphone  🔈 External Headphones)
+$ chaud speakerphone
+Speakerphone is active (🎤 MacBook Pro Microphone  🔈 MacBook Pro Speakers)
+```
+
+See all available devices with `chaud -a`
+You may list your configured options with `chaud -l`
+
+To save keystrokes you can assign aliases, such as:
+
+```
+$ chaud p
+Phone is active (🎤 External Microphone  🔈 External Headphones)
+```
+
 ## Requirements
 
 * BASH
@@ -69,20 +90,6 @@ yarn add macos-audio-devices@^1.0
     ]
 }
 ```
-
-## Usage
-
-This shows using the label and alias argument.
-
-```
-$ chaud phone
-Phone is active (🎤 External Microphone 🔈 External Headphones)
-$ chaud p
-Phone is active (🎤 External Microphone 🔈 External Headphones)
-```
-
-See all available devices with `chaud -a`
-You may list your configured options with `chaud -l`
 
 ## Troubleshooting
 

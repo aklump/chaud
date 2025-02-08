@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * @covers \AKlump\ChangeAudio\ConfigManager
  * @uses   \AKlump\ChangeAudio\Cache\CacheManager::getPath
+ * @uses   \AKlump\ChangeAudio\ValidateConfiguration
  */
 class ConfigManagerTest extends TestCase {
 

@@ -28,6 +28,12 @@ class ConfigManager {
 
   private string $defaultConfigPath;
 
+  private array $validationErrors;
+
+  public function getValidationErrors(): array {
+    return $this->validationErrors;
+  }
+
   public function __construct(CacheManager $cache_manager, string $user_home = '', string $default_config_path = '') {
     $this->cache = $cache_manager;
     $user_home = $user_home ?: $_SERVER['HOME'] ?? '';
@@ -55,7 +61,10 @@ class ConfigManager {
         throw new RuntimeException(sprintf("Failed to install config at: %s\n$message", $config_path));
       }
       $config = json_decode(file_get_contents($config_path), TRUE);
-      file_put_contents($config_include, '<?php return ' . var_export($config, TRUE) . ';');
+      $this->validationErrors = (new ValidateConfiguration())($config);
+      if (!$this->validationErrors) {
+        file_put_contents($config_include, '<?php return ' . var_export($config, TRUE) . ';');
+      }
     }
 
     return $config;

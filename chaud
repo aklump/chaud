@@ -45,6 +45,7 @@ fi
 # (Generate and) load the functions to change the audio by input.
 change_functions_path="$CACHE_PATH/change_audio.sh"
 [ ! -f "$change_functions_path" ] && "$__DIR__/bin/create_change_functions.php" "$change_functions_path"
+[ ! -f "$change_functions_path" ] && exit 1
 source "$change_functions_path"
 
 # Make the change.

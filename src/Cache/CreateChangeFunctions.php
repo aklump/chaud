@@ -103,7 +103,7 @@ class CreateChangeFunctions {
     if ($output) {
       $details[] = '🔈 ' . $output;
     }
-    $details = implode(' ', $details);
+    $details = implode('  ', $details);
 
     return sprintf('%s is active (%s)', $audio_config['label'], $details);
   }

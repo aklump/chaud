@@ -1,6 +1,12 @@
 {
   "name": "aklump/chaud",
   "type": "project",
+  "repositories": [
+    {
+      "type": "github",
+      "url": "https://github.com/aklump/json-schema-validation"
+    }
+  ],
   "autoload": {
     "psr-4": {
       "AKlump\\ChangeAudio\\": "src/"
@@ -19,7 +25,8 @@
   ],
   "require": {
     "php": "^7.4 || ^8.0",
-    "ext-json": "*"
+    "ext-json": "*",
+    "aklump/json-schema-validation": "^0.0"
   },
   "require-dev": {
     "phpunit/phpunit": "^9.6"

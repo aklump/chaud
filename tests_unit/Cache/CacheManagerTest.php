@@ -9,6 +9,7 @@ use RuntimeException;
 
 /**
  * @covers \AKlump\ChangeAudio\Cache\CacheManager
+ * @uses \AKlump\ChangeAudio\ValidateConfiguration
  */
 class CacheManagerTest extends TestCase {
 

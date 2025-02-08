@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `chaud -a` to show all available devices.
 - Support for device numbers (in addition to names) in config.
 - Unit tests.
+- Automatic JSON Schema validation
 
 ### Changed
 
