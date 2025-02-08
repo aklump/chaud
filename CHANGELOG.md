@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Nothing to list
 
+## [] - 2025-02-07
+
+### Added
+
+- `chaud -a` to show all available devices.
+- Support for device numbers (in addition to names) in config.
+- Unit tests.
+
+### Changed
+
+- `deviceId` changed to `device` in configuration schema.
+
 ## [0.0.4] - 2025-02-07
 
 ### Added

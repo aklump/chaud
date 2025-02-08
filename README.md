@@ -81,7 +81,8 @@ $ chaud p
 Phone is active (🎤 External Microphone 🔈 External Headphones)
 ```
 
-You may list options with `chaud -l`
+See all available devices with `chaud -a`
+You may list your configured options with `chaud -l`
 
 ## Troubleshooting
 
