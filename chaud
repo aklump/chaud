@@ -10,6 +10,14 @@ get_function_by_input() {
 
 s="${BASH_SOURCE[0]}";[[ "$s" ]] || s="${(%):-%N}";while [ -h "$s" ];do d="$(cd -P "$(dirname "$s")" && pwd)";s="$(readlink "$s")";[[ $s != /* ]] && s="$d/$s";done;__DIR__=$(cd -P "$(dirname "$s")" && pwd)
 
+
+# Check for verbose flag (-v) in the input
+if [[ "$*" == *"-v"* ]]; then
+  verbose=true
+else
+  verbose=false
+fi
+
 # Validate the input
 input="$1"
 if [[ ! "$input" ]]; then
@@ -44,6 +52,7 @@ fi
 
 # (Generate and) load the functions to change the audio by input.
 change_functions_path="$CACHE_PATH/change_audio.sh"
+[ $verbose == true ] && echo "🪲 $change_functions_path"
 [ ! -f "$change_functions_path" ] && "$__DIR__/bin/create_change_functions.php" "$change_functions_path"
 [ ! -f "$change_functions_path" ] && exit 1
 source "$change_functions_path"
@@ -51,4 +60,5 @@ source "$change_functions_path"
 # Make the change.
 change_function=$(get_function_by_input "$input")
 ! declare -F $change_function > /dev/null && echo "❌ Unknown audio configuration: $input" && exit 1
+[ $verbose == true ] && echo "🪲 $change_function()"
 $change_function

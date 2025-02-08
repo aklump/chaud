@@ -42,6 +42,9 @@
           },
           "output": {
             "$ref": "#/$def/device"
+          },
+          "scripts": {
+            "type": "array"
           }
         },
         "required": [

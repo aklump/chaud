@@ -81,6 +81,12 @@ class CreateChangeFunctions {
       }
     }
 
+    if (isset($device['scripts'])) {
+      foreach ($device['scripts'] as $script) {
+        $code .= sprintf('  %s', $script) . PHP_EOL;
+      }
+    }
+
     $code .= '  ' . sprintf('echo "%s"', $this->getUserMessage($device)) . PHP_EOL;
     $code .= '}' . PHP_EOL;
 

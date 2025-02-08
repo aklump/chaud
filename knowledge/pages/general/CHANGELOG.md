@@ -12,7 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Nothing to list
+- Add -v flag for verbose output
+- Add `scripts` to config to execute on enable
 
 ## [0.0.5] - 2025-02-07
 
