@@ -32,6 +32,11 @@ if [[ "$input" == '-c' ]]; then
   exit 0
 fi
 
+if [[ "$input" == '-a' ]]; then
+  "$__DIR__/bin/echo_all.php"
+  exit 0
+fi
+
 if [[ "$input" == '-l' ]]; then
   "$__DIR__/bin/echo_options.php"
   exit 0

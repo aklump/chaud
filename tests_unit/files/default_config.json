@@ -1,0 +1,29 @@
+{
+  "options": [
+    {
+      "label": "Phone",
+      "aliases": [
+        "p"
+      ],
+      "input": {
+        "device": "External Microphone"
+      },
+      "output": {
+        "device": "External Headphones",
+        "level": 0.25
+      }
+    },
+    {
+      "label": "Speakerphone",
+      "aliases": [
+        "sp"
+      ],
+      "input": {
+        "device": "MacBook Pro Microphone"
+      },
+      "output": {
+        "device": "MacBook Pro Speakers"
+      }
+    }
+  ]
+}

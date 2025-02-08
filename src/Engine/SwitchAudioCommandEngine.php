@@ -19,23 +19,28 @@ class SwitchAudioCommandEngine implements EngineInterface {
     return is_executable($this->script);
   }
 
-  public function getCommandChangeInput(string $device_name): string {
-    return sprintf("%s -i '%s'", $this->script, $device_name);
+  public function getCommandChangeInput(string $device): string {
+    return sprintf("%s -i '%s'", $this->script, $device);
   }
 
-  public function getCommandChangeOutput(string $device_name): string {
-    return sprintf("%s -o '%s'", $this->script, $device_name);
+  public function getCommandChangeOutput(string $device): string {
+    return sprintf("%s -o '%s'", $this->script, $device);
   }
 
   public function getHomepage(): string {
     return 'https://www.macscripter.net/t/switchaudio-a-command-line-tool-to-change-the-audio-input-and-output-device/75630/1';
   }
 
-  public function getCommandSetOutputLevel(string $device_name, float $volume): string {
+  public function getCommandSetOutputLevel(string $device, float $volume): string {
     throw new EngineFeatureException("SwitchAudioCommandEngine does not support output levels.");
   }
 
-  public function getCommandSetInputLevel(string $device_name, float $volume): string {
+  public function getCommandSetInputLevel(string $device, float $volume): string {
     throw new EngineFeatureException("SwitchAudioCommandEngine does not support input levels.");
+  }
+
+  public function getAllDevices(): array {
+    // TODO Implement
+    return [];
   }
 }

@@ -17,13 +17,29 @@ use RuntimeException;
  */
 class ConfigManager {
 
+  const CONFIG_BASENAME = '.chaud.json';
+
   /**
    * @var \AKlump\ChangeAudio\Cache\CacheManager
    */
   private CacheManager $cache;
 
-  public function __construct(CacheManager $cache_manager) {
+  private string $userHome;
+
+  private string $defaultConfigPath;
+
+  public function __construct(CacheManager $cache_manager, string $user_home = '', string $default_config_path = '') {
     $this->cache = $cache_manager;
+    $user_home = $user_home ?: $_SERVER['HOME'] ?? '';
+    $this->setUserHome($user_home);
+    $this->defaultConfigPath = $default_config_path ?: __DIR__ . '/../install/config.json';
+  }
+
+  private function setUserHome(string $user_home): void {
+    if (empty($user_home) || !file_exists($user_home) || !is_dir($user_home)) {
+      throw new RuntimeException('Missing $_SERVER[HOME]');
+    }
+    $this->userHome = $user_home;
   }
 
   public function get(): array {
@@ -35,7 +51,8 @@ class ConfigManager {
     else {
       $config_path = $this->path();
       if (!file_exists($config_path) && !$this->installDefaultConfig($config_path)) {
-        throw new RuntimeException(sprintf('Failed to install config at: %s', $config_path));
+        $message = error_get_last()['message'] ?? '';
+        throw new RuntimeException(sprintf("Failed to install config at: %s\n$message", $config_path));
       }
       $config = json_decode(file_get_contents($config_path), TRUE);
       file_put_contents($config_include, '<?php return ' . var_export($config, TRUE) . ';');
@@ -45,20 +62,15 @@ class ConfigManager {
   }
 
   public function path(): string {
-    if (empty($_SERVER['HOME']) || !file_exists($_SERVER['HOME']) || !is_dir($_SERVER['HOME'])) {
-      throw new RuntimeException('Missing $_SERVER[HOME]');
-    }
-
-    return $_SERVER['HOME'] . '/.chaud.json';
+    return $this->userHome . '/' . self::CONFIG_BASENAME;
   }
 
   private function installDefaultConfig(string $config_path): bool {
-    $default_config_path = __DIR__ . '/../install/config.json';
-    if (!file_exists($default_config_path)) {
-      throw new RuntimeException(sprintf('Missing default config: %s', $default_config_path));
+    if (!file_exists($this->defaultConfigPath)) {
+      throw new RuntimeException(sprintf('Missing default config: %s', $this->defaultConfigPath));
     }
 
-    return copy($default_config_path, $config_path);
+    return @copy($this->defaultConfigPath, $config_path);
   }
 
 }

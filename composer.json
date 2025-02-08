@@ -6,6 +6,11 @@
       "AKlump\\ChangeAudio\\": "src/"
     }
   },
+  "autoload-dev": {
+    "psr-4": {
+      "AKlump\\ChangeAudio\\Tests\\Unit\\": "./tests_unit"
+    }
+  },
   "authors": [
     {
       "name": "Aaron Klump",
@@ -13,7 +18,11 @@
     }
   ],
   "require": {
+    "php": "^7.4 || ^8.0",
     "ext-json": "*"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.6"
   },
   "license": "BSD-3-Clause"
 }

@@ -18,23 +18,28 @@ class SwitchAudioOSXEngine implements EngineInterface {
     return is_executable($this->script);
   }
 
-  public function getCommandChangeInput(string $device_name): string {
-    return sprintf('%s -s "%s" -t input', $this->script, $device_name);
+  public function getCommandChangeInput(string $device): string {
+    return sprintf('%s -s "%s" -t input', $this->script, $device);
   }
 
-  public function getCommandChangeOutput(string $device_name): string {
-    return sprintf('%s -s "%s" -t output', $this->script, $device_name);
+  public function getCommandChangeOutput(string $device): string {
+    return sprintf('%s -s "%s" -t output', $this->script, $device);
   }
 
   public function getHomepage(): string {
     return 'https://github.com/deweller/switchaudio-osx';
   }
 
-  public function getCommandSetOutputLevel(string $device_name, float $volume): string {
+  public function getCommandSetOutputLevel(string $device, float $volume): string {
     throw new EngineFeatureException("SwitchAudioOSXEngine does not support output levels.");
   }
 
-  public function getCommandSetInputLevel(string $device_name, float $volume): string {
+  public function getCommandSetInputLevel(string $device, float $volume): string {
     throw new EngineFeatureException("SwitchAudioOSXEngine does not support input levels.");
+  }
+
+  public function getAllDevices(): array {
+    // TODO Implement
+    return [];
   }
 }

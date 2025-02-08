@@ -4,6 +4,7 @@
 namespace AKlump\ChangeAudio\Cache;
 
 use AKlump\ChangeAudio\ConfigManager;
+use AKlump\ChangeAudio\Device;
 use AKlump\ChangeAudio\DeviceTypes;
 use AKlump\ChangeAudio\Engine\EngineInterface;
 use AKlump\ChangeAudio\Exception\EngineFeatureException;
@@ -55,14 +56,14 @@ class CreateChangeFunctions {
     $get_level = new GetDeviceLevel();
 
     $code = sprintf('%s(){', $func_name) . PHP_EOL;
-    $code .= sprintf('  %s &> /dev/null', $this->engine->getCommandChangeInput($device['input']['deviceId'])) . PHP_EOL;
-    $code .= sprintf('  %s &> /dev/null', $this->engine->getCommandChangeOutput($device['output']['deviceId'])) . PHP_EOL;
+    $code .= sprintf('  %s &> /dev/null', $this->engine->getCommandChangeInput($device['input']['device'])) . PHP_EOL;
+    $code .= sprintf('  %s &> /dev/null', $this->engine->getCommandChangeOutput($device['output']['device'])) . PHP_EOL;
 
     $level = $get_level($device, DeviceTypes::INPUT);
     if (isset($level)) {
       try {
         $code .= sprintf('  %s &> /dev/null',
-            $this->engine->getCommandSetInputLevel($device['input']['deviceId'], $level)) . PHP_EOL;
+            $this->engine->getCommandSetInputLevel($device['input']['device'], $level)) . PHP_EOL;
       }
       catch (EngineFeatureException $exception) {
         // Level feature not supported by engine.
@@ -73,7 +74,7 @@ class CreateChangeFunctions {
     if (isset($level)) {
       try {
         $code .= sprintf('  %s &> /dev/null',
-            $this->engine->getCommandSetOutputLevel($device['output']['deviceId'], $level)) . PHP_EOL;
+            $this->engine->getCommandSetOutputLevel($device['output']['device'], $level)) . PHP_EOL;
       }
       catch (EngineFeatureException $exception) {
         // Level feature not supported by engine.
@@ -90,11 +91,35 @@ class CreateChangeFunctions {
     return 'change_to_' . str_replace(' ', '_', strtolower($user_input));
   }
 
-  private function getUserMessage(array $device): string {
-    return sprintf('%s is active (🎤 %s 🔈 %s)',
-      $device['label'],
-      $device['input']['deviceId'],
-      $device['output']['deviceId']);
+  private function getUserMessage(array $audio_config): string {
+    $devices = $this->engine->getAllDevices();
+    $input = $this->normalizeDevicePointer($audio_config['input']['device'] ?? '', $devices);
+    $output = $this->normalizeDevicePointer($audio_config['output']['device'] ?? '', $devices);
+
+    $details = [];
+    if ($input) {
+      $details[] = '🎤 ' . $input;
+    }
+    if ($output) {
+      $details[] = '🔈 ' . $output;
+    }
+    $details = implode(' ', $details);
+
+    return sprintf('%s is active (%s)', $audio_config['label'], $details);
+  }
+
+  private function normalizeDevicePointer($pointer, array $devices): string {
+    if (!is_numeric($pointer)) {
+      return $pointer;
+    }
+
+    return array_reduce($devices, function (string $carry, Device $device) use ($pointer) {
+      if ($device->getId() == $pointer) {
+        return $device->getName();
+      }
+
+      return $carry;
+    }, '');
   }
 
 }

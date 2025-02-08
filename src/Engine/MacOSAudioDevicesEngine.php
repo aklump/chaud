@@ -4,6 +4,7 @@
 namespace AKlump\ChangeAudio\Engine;
 
 use AKlump\ChangeAudio\Cache\CacheManager;
+use AKlump\ChangeAudio\Device;
 use AKlump\ChangeAudio\DeviceTypes;
 use AKlump\ChangeAudio\Exception\AudioChangeException;
 use ReflectionClass;
@@ -13,11 +14,13 @@ class MacOSAudioDevicesEngine implements EngineInterface {
 
   private CacheManager $cache;
 
+  private array $allDevices;
+
+  private string $script;
+
   public function __construct(CacheManager $cache) {
     $this->cache = $cache;
   }
-
-  private string $script;
 
   public function applies(): bool {
     $this->script = __DIR__ . '/../../node_modules/.bin/macos-audio-devices';
@@ -36,30 +39,32 @@ class MacOSAudioDevicesEngine implements EngineInterface {
     }
   }
 
-  public function getCommandChangeInput(string $device_name): string {
-    $device = $this->getDeviceByName(DeviceTypes::INPUT, $device_name);
-
-    return sprintf("%s input set %d", $this->script, $device['id']);
+  public function getCommandChangeInput(string $device): string {
+    return sprintf("%s input set %d", $this->script, $this->getIdByDevicePointer(DeviceTypes::INPUT, $device));
   }
 
-  public function getCommandChangeOutput(string $device_name): string {
-    $device = $this->getDeviceByName(DeviceTypes::OUTPUT, $device_name);
-
-    return sprintf("%s output set %d", $this->script, $device['id']);
+  public function getCommandChangeOutput(string $device): string {
+    return sprintf("%s output set %d", $this->script, $this->getIdByDevicePointer(DeviceTypes::OUTPUT, $device));
   }
 
-  public function getCommandSetOutputLevel(string $device_name, float $limit): string {
-    $device = $this->getDeviceByName(DeviceTypes::OUTPUT, $device_name);
-
-    return sprintf("%s volume set %d %f", $this->script, $device['id'], $limit);
+  public function getCommandSetOutputLevel(string $device, float $limit): string {
+    return sprintf("%s volume set %d %f", $this->script, $this->getIdByDevicePointer(DeviceTypes::OUTPUT, $device), $limit);
   }
 
-  public function getCommandSetInputLevel(string $device_name, float $limit): string {
+  public function getCommandSetInputLevel(string $device, float $limit): string {
     throw new EngineFeatureException("MacOSAudioDevicesEngine does not support input levels.");
   }
 
   public function getHomepage(): string {
     return 'https://github.com/karaggeorge/macos-audio-devices';
+  }
+
+  private function getIdByDevicePointer(string $device_type, string $device) {
+    if (is_numeric($device)) {
+      return $device;
+    }
+
+    return $this->getDeviceByName($device_type, $device)['id'];
   }
 
   private function getDeviceByName(string $device_type, string $name, bool $try_flush = TRUE): array {
@@ -97,4 +102,21 @@ class MacOSAudioDevicesEngine implements EngineInterface {
     return $device ?? [];
   }
 
+  public function getAllDevices(): array {
+    if (!isset($this->allDevices)) {
+      $json = exec(sprintf('%s list --json', $this->script));
+      $this->allDevices = json_decode($json, TRUE);
+      $this->allDevices = array_map(function ($device) {
+        $type = $device['isOutput'] ? DeviceTypes::OUTPUT : DeviceTypes::INPUT;
+
+        return (new Device())->setId($device['id'])
+          ->setName($device['name'])
+          ->setType($type);
+      }, $this->allDevices);
+
+      uasort($this->allDevices, fn($a, $b) => $a->getName() <=> $b->getName());
+    }
+
+    return $this->allDevices;
+  }
 }
