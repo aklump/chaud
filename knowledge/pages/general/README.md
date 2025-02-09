@@ -71,6 +71,8 @@ yarn add macos-audio-devices@^1.0
 ## Troubleshooting
 
 * Sometimes you might need to *refresh the device* list by running `chaud -c`, which is the command for showing the configuration file. This command reloads system audio information as well.
+* In my testing not all audio devices support level control.  That may be a shortcoming of the engine, or the device, I'm not sure.
+
 
 ## Audio Engines
 
