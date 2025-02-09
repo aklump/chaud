@@ -1,3 +1,8 @@
+<!--
+id: media
+tags: ''
+-->
+
 ## Controlling Media
 
 Install the following to get access to CLI music control

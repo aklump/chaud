@@ -4,6 +4,7 @@
 
 use AKlump\ChangeAudio\Cache\CacheManager;
 use AKlump\ChangeAudio\Cache\CreateChangeFunctions;
+use AKlump\ChangeAudio\Exception\AudioChangeException;
 use AKlump\ChangeAudio\GetAudioEngine;
 use AKlump\ChangeAudio\ConfigManager;
 
@@ -26,6 +27,9 @@ try {
   }
   $engine = (new GetAudioEngine())();
   (new CreateChangeFunctions($engine))($change_scripts_path);
+}
+catch (AudioChangeException $e) {
+  echo '❌ ' . $e->getMessage() . PHP_EOL;
 }
 catch (Error $e) {
   echo '❌ ' . $e->getMessage() . PHP_EOL . $e->getTraceAsString() . PHP_EOL;

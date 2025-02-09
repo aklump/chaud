@@ -64,7 +64,12 @@ class MacOSAudioDevicesEngine implements EngineInterface {
       return $device;
     }
 
-    return $this->getDeviceByName($device_type, $device)['id'];
+    $pointer = $this->getDeviceByName($device_type, $device)['id'] ?? '';
+    if (empty($pointer)) {
+      throw new AudioChangeException(sprintf('Could not find device "%s"', $device));
+    }
+
+    return $pointer;
   }
 
   private function getDeviceByName(string $device_type, string $name, bool $try_flush = TRUE): array {
@@ -93,13 +98,13 @@ class MacOSAudioDevicesEngine implements EngineInterface {
       return $datum['name'] === $name;
     });
 
-    $device = reset($device) ?? NULL;
+    $device = reset($device);
     if (!$device && $try_flush) {
       unlink($device_index_include);
       $device = $this->getDeviceByName($device_type, $name, FALSE);
     }
 
-    return $device ?? [];
+    return $device ?: [];
   }
 
   public function getAllDevices(): array {
