@@ -56,8 +56,14 @@ class CreateChangeFunctions {
     $get_level = new GetDeviceLevel();
 
     $code = sprintf('%s(){', $func_name) . PHP_EOL;
-    $code .= sprintf('  %s &> /dev/null', $this->engine->getCommandChangeInput($device['input']['device'])) . PHP_EOL;
-    $code .= sprintf('  %s &> /dev/null', $this->engine->getCommandChangeOutput($device['output']['device'])) . PHP_EOL;
+
+    if (!empty($device['input'])) {
+      $code .= sprintf('  %s &> /dev/null', $this->engine->getCommandChangeInput($device['input']['device'])) . PHP_EOL;
+    }
+
+    if (!empty($device['output'])) {
+      $code .= sprintf('  %s &> /dev/null', $this->engine->getCommandChangeOutput($device['output']['device'])) . PHP_EOL;
+    }
 
     $level = $get_level($device, DeviceTypes::INPUT);
     if (isset($level)) {

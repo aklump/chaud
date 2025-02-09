@@ -9,21 +9,24 @@ use AKlump\ChangeAudio\ConfigManager;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-$change_scripts_path = $argv[1] ?? '';
-if (empty($change_scripts_path)) {
-  $change_scripts_path = (new CacheManager())->getPath() . '/change_audio.sh';
-}
-
-$manager = new ConfigManager(new CacheManager());
-$manager->get();
-$validate_errors = $manager->getValidationErrors();
-if ($validate_errors) {
-  echo '❌ Invalid configuration:' . PHP_EOL;
-  foreach ($validate_errors as $error) {
-    echo '⚠️ ' . $error . PHP_EOL;
+try {
+  $change_scripts_path = $argv[1] ?? '';
+  if (empty($change_scripts_path)) {
+    $change_scripts_path = (new CacheManager())->getPath() . '/change_audio.sh';
   }
-  exit(1);
+  $manager = new ConfigManager(new CacheManager());
+  $manager->get();
+  $validate_errors = $manager->getValidationErrors();
+  if ($validate_errors) {
+    echo '❌ Invalid configuration:' . PHP_EOL;
+    foreach ($validate_errors as $error) {
+      echo '⚠️ ' . $error . PHP_EOL;
+    }
+    exit(1);
+  }
+  $engine = (new GetAudioEngine())();
+  (new CreateChangeFunctions($engine))($change_scripts_path);
 }
-
-$engine = (new GetAudioEngine())();
-(new CreateChangeFunctions($engine))($change_scripts_path);
+catch (Error $e) {
+  echo '❌ ' . $e->getMessage() . PHP_EOL . $e->getTraceAsString() . PHP_EOL;
+}

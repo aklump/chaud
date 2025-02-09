@@ -28,7 +28,7 @@ class ConfigManager {
 
   private string $defaultConfigPath;
 
-  private array $validationErrors;
+  private array $validationErrors = [];
 
   public function getValidationErrors(): array {
     return $this->validationErrors;
