@@ -3,6 +3,7 @@
   "$def": {
     "device": {
       "type": "object",
+      "additionalProperties": false,
       "properties": {
         "device": {
           "type": [
@@ -22,6 +23,7 @@
       ]
     }
   },
+  "additionalProperties": false,
   "properties": {
     "options": {
       "type": "array",

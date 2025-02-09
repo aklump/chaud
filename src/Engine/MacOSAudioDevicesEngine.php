@@ -40,11 +40,11 @@ class MacOSAudioDevicesEngine implements EngineInterface {
   }
 
   public function getCommandChangeInput(string $device): string {
-    return sprintf("%s input set %d", $this->script, $this->getIdByDevicePointer(DeviceTypes::INPUT, $device));
+    return sprintf("%s input set %d &> /dev/null", $this->script, $this->getIdByDevicePointer(DeviceTypes::INPUT, $device));
   }
 
   public function getCommandChangeOutput(string $device): string {
-    return sprintf("%s output set %d", $this->script, $this->getIdByDevicePointer(DeviceTypes::OUTPUT, $device));
+    return sprintf("%s output set %d &> /dev/null", $this->script, $this->getIdByDevicePointer(DeviceTypes::OUTPUT, $device));
   }
 
   public function getCommandSetOutputLevel(string $device, float $limit): string {

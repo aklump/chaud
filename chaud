@@ -59,6 +59,10 @@ source "$change_functions_path"
 
 # Make the change.
 change_function=$(get_function_by_input "$input")
-! declare -F $change_function > /dev/null && echo "❌ Unknown audio configuration: $input" && exit 1
+if ! declare -F $change_function > /dev/null; then
+  echo "❌ Unknown audio configuration: $input"
+  "$__DIR__/bin/did_you_mean.php" "$input"
+  exit 1
+fi
 [ $verbose == true ] && echo "🪲 $change_function()"
 $change_function

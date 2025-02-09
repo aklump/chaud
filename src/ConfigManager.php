@@ -17,7 +17,7 @@ use RuntimeException;
  */
 class ConfigManager {
 
-  const CONFIG_BASENAME = '.chaud.json';
+  const CONFIG_BASENAME = '.' . App::BIN . '.json';
 
   /**
    * @var \AKlump\ChangeAudio\Cache\CacheManager

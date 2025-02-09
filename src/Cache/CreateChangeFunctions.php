@@ -58,17 +58,17 @@ class CreateChangeFunctions {
     $code = sprintf('%s(){', $func_name) . PHP_EOL;
 
     if (!empty($device['input'])) {
-      $code .= sprintf('  %s &> /dev/null', $this->engine->getCommandChangeInput($device['input']['device'])) . PHP_EOL;
+      $code .= sprintf('  %s', $this->engine->getCommandChangeInput($device['input']['device'])) . PHP_EOL;
     }
 
     if (!empty($device['output'])) {
-      $code .= sprintf('  %s &> /dev/null', $this->engine->getCommandChangeOutput($device['output']['device'])) . PHP_EOL;
+      $code .= sprintf('  %s', $this->engine->getCommandChangeOutput($device['output']['device'])) . PHP_EOL;
     }
 
     $level = $get_level($device, DeviceTypes::INPUT);
     if (isset($level)) {
       try {
-        $code .= sprintf('  %s &> /dev/null',
+        $code .= sprintf('  %s',
             $this->engine->getCommandSetInputLevel($device['input']['device'], $level)) . PHP_EOL;
       }
       catch (EngineFeatureException $exception) {
@@ -79,7 +79,7 @@ class CreateChangeFunctions {
     $level = $get_level($device, DeviceTypes::OUTPUT);
     if (isset($level)) {
       try {
-        $code .= sprintf('  %s &> /dev/null',
+        $code .= sprintf('  %s',
             $this->engine->getCommandSetOutputLevel($device['output']['device'], $level)) . PHP_EOL;
       }
       catch (EngineFeatureException $exception) {
