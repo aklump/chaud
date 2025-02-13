@@ -56,13 +56,16 @@ class CreateChangeFunctions {
     $get_level = new GetDeviceLevel();
 
     $code = sprintf('%s(){', $func_name) . PHP_EOL;
+    $code .= 'local state' . PHP_EOL;
 
     if (!empty($device['input'])) {
       $code .= sprintf('  %s', $this->engine->getCommandChangeInput($device['input']['device'])) . PHP_EOL;
+      $code .= '  [ $? -ne 0 ] && echo "❌ Failed to change input device." && state=false' . PHP_EOL;
     }
 
     if (!empty($device['output'])) {
       $code .= sprintf('  %s', $this->engine->getCommandChangeOutput($device['output']['device'])) . PHP_EOL;
+      $code .= '  [ $? -ne 0 ] && echo "❌ Failed to change output device." && state=false' . PHP_EOL;
     }
 
     $level = $get_level($device, DeviceTypes::INPUT);
@@ -90,9 +93,11 @@ class CreateChangeFunctions {
     if (isset($device['scripts'])) {
       foreach ($device['scripts'] as $script) {
         $code .= sprintf('  %s', $script) . PHP_EOL;
+        $code .= sprintf('  [ $? -ne 0 ] && echo "❌ Script failed: %s" && state=false', $script) . PHP_EOL;
       }
     }
 
+    $code .= '  [[ "$state" == "false" ]] && echo "⚠️ Audio remains unchanged." && return 1' . PHP_EOL;
     $code .= '  ' . sprintf('echo "%s"', $this->getUserMessage($device)) . PHP_EOL;
     $code .= '}' . PHP_EOL;
 
