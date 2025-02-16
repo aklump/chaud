@@ -7,6 +7,7 @@ use AKlump\ChangeAudio\Cache\CacheManager;
 use AKlump\ChangeAudio\Device;
 use AKlump\ChangeAudio\DeviceTypes;
 use AKlump\ChangeAudio\Exception\AudioChangeException;
+use AKlump\ChangeAudio\Exception\MissingDeviceException;
 use ReflectionClass;
 use AKlump\ChangeAudio\Exception\EngineFeatureException;
 
@@ -66,7 +67,7 @@ class MacOSAudioDevicesEngine implements EngineInterface {
 
     $pointer = $this->getDeviceByName($device_type, $device)['id'] ?? '';
     if (empty($pointer)) {
-      throw new AudioChangeException(sprintf('Could not find device "%s"', $device));
+      throw new MissingDeviceException(sprintf('Could not find device "%s"', $device));
     }
 
     return $pointer;

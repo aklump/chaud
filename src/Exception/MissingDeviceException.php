@@ -3,6 +3,6 @@
 
 namespace AKlump\ChangeAudio\Exception;
 
-class AudioChangeException extends \RuntimeException {
+class MissingDeviceException extends \RuntimeException {
 
 }

@@ -8,6 +8,7 @@ use AKlump\ChangeAudio\Device;
 use AKlump\ChangeAudio\DeviceTypes;
 use AKlump\ChangeAudio\Engine\EngineInterface;
 use AKlump\ChangeAudio\Exception\EngineFeatureException;
+use AKlump\ChangeAudio\Exception\MissingDeviceException;
 use AKlump\ChangeAudio\GetDeviceLevel;
 
 class CreateChangeFunctions {
@@ -35,12 +36,17 @@ class CreateChangeFunctions {
     $config = (new ConfigManager(new CacheManager()))->get();
     foreach ($config['options'] as $device) {
       $func_name = $this->getFunctionName($device['label']);
-      $names[$func_name] = $this->getFunctionCode($func_name, $device);
-      $names[strtolower($func_name)] = $this->getFunctionCode($func_name, $device);
-      foreach (($device['aliases'] ?? []) as $item) {
-        $func_name = $this->getFunctionName($item);
-        $aliases[$func_name] = $this->getFunctionCode($func_name, $device);
-        $aliases[strtolower($func_name)] = $this->getFunctionCode($func_name, $device);
+      try {
+        $names[$func_name] = $this->getFunctionCode($func_name, $device);
+        $names[strtolower($func_name)] = $this->getFunctionCode($func_name, $device);
+        foreach (($device['aliases'] ?? []) as $item) {
+          $func_name = $this->getFunctionName($item);
+          $aliases[$func_name] = $this->getFunctionCode($func_name, $device);
+          $aliases[strtolower($func_name)] = $this->getFunctionCode($func_name, $device);
+        }
+      }
+      catch (MissingDeviceException $exception) {
+        // Probably the device was BT and was disconnected.
       }
     }
 
