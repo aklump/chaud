@@ -43,7 +43,7 @@ Phone is active (🎤 External Microphone  🔈 External Headphones)
 * Assuming `~/bin` is in your `$PATH` variable, create a symlink to wherever you've installed this app.
   ```shell
   cd ~/bin
-  ln -s /Users/aklump/opt/chaud/chaud .
+  ln -s ~/opt/chaud/chaud .
   ```
 
 ### Audio Engine
