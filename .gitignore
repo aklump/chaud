@@ -1,6 +1,5 @@
 vendor/
 composer.lock
-config.json
 node_modules/
 yarn.lock
 
