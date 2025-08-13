@@ -25,11 +25,17 @@ if [[ ! "$input" ]]; then
   exit 1
 fi
 
+flush_cache=false
+if [[ "$@" == *"-c"* ]]; then
+  flush_cache=true
+  [[ "$1" == '-c' ]] && input="$2"
+fi
+
 CACHE_PATH="${TMPDIR:-${TEMP:-/tmp}}"
 CACHE_PATH="${CACHE_PATH%%/}/com.aklump.chaud"
 export CACHE_PATH
 
-if [[ "$input" == '-c' ]]; then
+if [[ "$flush_cache" == true ]]; then
   # Flush the cache so new config will be used, if it is changed.
   [[ "$CACHE_PATH" ]] && rm "$CACHE_PATH/"* &>/dev/null
 
@@ -37,7 +43,7 @@ if [[ "$input" == '-c' ]]; then
   config_path="$("$__DIR__/bin/get_config_path.php")"
   [ ! -f "$config_path" ] && $("$__DIR__/bin/install_config.php")
   echo "✏️ $config_path"
-  exit 0
+  [[ ! "$input" ]] && exit 0
 fi
 
 if [[ "$input" == '-a' ]]; then
