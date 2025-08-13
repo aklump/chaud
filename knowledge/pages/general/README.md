@@ -68,11 +68,16 @@ yarn add macos-audio-devices@^1.0
 {{ example_config|raw }}
 ```
 
+## How to Update
+
+* Delete the _chaud_ folder that was previously installed.
+* Repeat the installation process.
+* Be sure to install the audio engine as well.
+
 ## Troubleshooting
 
-* Sometimes you might need to *refresh the device* list by running `chaud -c`, which is the command for showing the configuration file. This command reloads system audio information as well.
-* In my testing not all audio devices support level control.  That may be a shortcoming of the engine, or the device, I'm not sure.
-
+* Sometimes you might need to *refresh the device* list by running `chaud -c`, which is the command for showing the configuration file. This command reloads system audio information as well. You may combine this flag with device assigment into one command, e.g., `chaud -c phone`.
+* In my testing not all audio devices support level control. That may be a shortcoming of the engine, or the device, I'm not sure.
 
 ## Audio Engines
 
