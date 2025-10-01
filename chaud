@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: BSD-3-Clause
 
+# ========= CONFIG =========
+# Set to false and the configuration will be rechecked each execution bypassing the cache
+# This avoids issues that arise when devices change and become unavailable.
+ENABLE_CACHE=true
+# ========= END CONFIG =========
+
 get_function_by_input() {
   local user_input="$1"
 
@@ -25,7 +31,12 @@ if [[ ! "$input" ]]; then
   exit 1
 fi
 
-flush_cache=false
+ENABLE_CACHE=${ENABLE_CACHE:-false}
+if [ "$ENABLE_CACHE" = true ]; then
+    flush_cache=false
+else
+    flush_cache=true
+fi
 if [[ "$@" == *"-c"* ]]; then
   flush_cache=true
   [[ "$1" == '-c' ]] && input="$2"
