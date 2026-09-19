@@ -6,7 +6,12 @@ use AKlump\ChangeAudio\GetAudioEngine;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 # If the file doesn't exist, it will be installed during ::get.
-$devices = (new GetAudioEngine())()->getAllDevices();
+$engine = (new GetAudioEngine())();
+if (!$engine) {
+  echo '❌ No supported audio engine is installed; cannot list devices.' . PHP_EOL;
+  exit(1);
+}
+$devices = $engine->getAllDevices();
 foreach ($devices as $device) {
   echo '🔹 ' . $device . PHP_EOL;
 }

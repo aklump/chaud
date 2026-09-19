@@ -7,29 +7,38 @@
 ENABLE_CACHE=true
 # ========= END CONFIG =========
 
+# Must stay in sync with CreateChangeFunctions::getFunctionName() in PHP:
+# every character outside [a-z0-9_] becomes an underscore.
 get_function_by_input() {
   local user_input="$1"
 
-  local suffix=$(echo "$user_input" | tr '[:upper:]' '[:lower:]' | tr ' ' '_')
+  local suffix=$(echo "$user_input" | LC_ALL=C tr '[:upper:]' '[:lower:]' | LC_ALL=C sed 's/[^a-z0-9_]/_/g')
   echo "change_to_$suffix"
 }
 
 s="${BASH_SOURCE[0]}";[[ "$s" ]] || s="${(%):-%N}";while [ -h "$s" ];do d="$(cd -P "$(dirname "$s")" && pwd)";s="$(readlink "$s")";[[ $s != /* ]] && s="$d/$s";done;__DIR__=$(cd -P "$(dirname "$s")" && pwd)
 
 
-# Check for verbose flag (-v) in the input
-if [[ "$*" == *"-v"* ]]; then
-  verbose=true
-else
-  verbose=false
-fi
-
 # Validate the input
-input="$1"
-if [[ ! "$input" ]]; then
+if [[ $# -eq 0 ]]; then
   echo "❌ Missing argument - audio configuration name or alias."
   exit 1
 fi
+
+# Parse the arguments.  Flags are matched exactly and may appear in any
+# position; the first non-flag argument is the audio configuration name or
+# alias.  Substring matching here would let a legitimate label such as
+# "line-check" or "my-video" trigger -c or -v.
+verbose=false
+flush_cache_requested=false
+input=''
+for arg in "$@"; do
+  case "$arg" in
+    -v) verbose=true ;;
+    -c) flush_cache_requested=true ;;
+    *) [[ ! "$input" ]] && input="$arg" ;;
+  esac
+done
 
 ENABLE_CACHE=${ENABLE_CACHE:-false}
 if [ "$ENABLE_CACHE" = true ]; then
@@ -37,10 +46,7 @@ if [ "$ENABLE_CACHE" = true ]; then
 else
     flush_cache=true
 fi
-if [[ "$@" == *"-c"* ]]; then
-  flush_cache=true
-  [[ "$1" == '-c' ]] && input="$2"
-fi
+[[ "$flush_cache_requested" == true ]] && flush_cache=true
 
 CACHE_PATH="${TMPDIR:-${TEMP:-/tmp}}"
 CACHE_PATH="${CACHE_PATH%%/}/com.aklump.chaud"
@@ -52,9 +58,14 @@ if [[ "$flush_cache" == true ]]; then
 
   # Print the config getPath for user to open and edit.
   config_path="$("$__DIR__/bin/get_config_path.php")"
-  [ ! -f "$config_path" ] && $("$__DIR__/bin/install_config.php")
+  [ ! -f "$config_path" ] && "$__DIR__/bin/install_config.php"
   echo "✏️ $config_path"
   [[ ! "$input" ]] && exit 0
+fi
+
+if [[ ! "$input" ]]; then
+  echo "❌ Missing argument - audio configuration name or alias."
+  exit 1
 fi
 
 if [[ "$input" == '-a' ]]; then

@@ -110,8 +110,18 @@ class CreateChangeFunctions {
     return $code;
   }
 
+  /**
+   * Convert a label or alias into a valid bash function name.
+   *
+   * Every character outside [a-z0-9_] becomes an underscore.  Anything else
+   * (e.g. a label like "Phone (BT)") would emit an unparsable function
+   * declaration, and because the generated file is sourced as a whole, a
+   * single bad name silently discards every function declared after it.
+   *
+   * @see chaud::get_function_by_input() which must apply the same transform.
+   */
   private function getFunctionName(string $user_input): string {
-    return 'change_to_' . str_replace(' ', '_', strtolower($user_input));
+    return 'change_to_' . preg_replace('/[^a-z0-9_]/', '_', strtolower($user_input));
   }
 
   private function getUserMessage(array $audio_config): string {

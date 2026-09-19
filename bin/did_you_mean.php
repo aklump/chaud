@@ -18,17 +18,16 @@ if (empty($config['options'])) {
 }
 foreach ($config['options'] as $option) {
   $options[] = $option['label'];
-  foreach (($options['aliases'] ?? []) as $alias) {
-    $options[] = $option['alias'];
+  foreach (($option['aliases'] ?? []) as $alias) {
+    $options[] = $alias;
   }
 }
 
+// FuzzyMatch returns at most one suggestion, so there is never more than one
+// to name here.
 $suggestions = (new FuzzyMatch())($input, $options);
 if ($suggestions) {
-  $suffix = array_pop($suggestions);
-  if (count($suggestions) > 1) {
-    $suffix = implode(', ', $suggestions) . ' or ' . $suffix . '?';
-  }
-  echo sprintf("🤔 Did you mean \"$suffix\"? (%s -l)", App::BIN) . PHP_EOL;
+  $suggestion = array_pop($suggestions);
+  echo sprintf("🤔 Did you mean \"%s\"? (%s -l)", $suggestion, App::BIN) . PHP_EOL;
 }
 exit (0);

@@ -4,7 +4,6 @@
 
 use AKlump\ChangeAudio\Cache\CacheManager;
 use AKlump\ChangeAudio\Cache\CreateChangeFunctions;
-use AKlump\ChangeAudio\Exception\AudioChangeException;
 use AKlump\ChangeAudio\GetAudioEngine;
 use AKlump\ChangeAudio\ConfigManager;
 
@@ -26,11 +25,17 @@ try {
     exit(1);
   }
   $engine = (new GetAudioEngine())();
+  if (!$engine) {
+    echo '❌ No supported audio engine is installed.' . PHP_EOL;
+    exit(1);
+  }
   (new CreateChangeFunctions($engine))($change_scripts_path);
 }
-catch (AudioChangeException $e) {
+catch (RuntimeException $e) {
   echo '❌ ' . $e->getMessage() . PHP_EOL;
+  exit(1);
 }
 catch (Error $e) {
   echo '❌ ' . $e->getMessage() . PHP_EOL . $e->getTraceAsString() . PHP_EOL;
+  exit(1);
 }

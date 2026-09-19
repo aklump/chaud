@@ -6,8 +6,8 @@ namespace AKlump\ChangeAudio\Engine;
 use AKlump\ChangeAudio\Cache\CacheManager;
 use AKlump\ChangeAudio\Device;
 use AKlump\ChangeAudio\DeviceTypes;
-use AKlump\ChangeAudio\Exception\AudioChangeException;
 use AKlump\ChangeAudio\Exception\MissingDeviceException;
+use InvalidArgumentException;
 use ReflectionClass;
 use AKlump\ChangeAudio\Exception\EngineFeatureException;
 
@@ -36,7 +36,7 @@ class MacOSAudioDevicesEngine implements EngineInterface {
       case DeviceTypes::OUTPUT:
         return '--output';
       default:
-        throw new AudioChangeException();
+        throw new InvalidArgumentException(sprintf('Unknown device type: %s', $device_type));
     }
   }
 
