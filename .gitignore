@@ -5,3 +5,4 @@ yarn.lock
 
 # Dev
 bin/benchmark.php
+.idea/
