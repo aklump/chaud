@@ -1,0 +1,16 @@
+# readme-shine settings for this project. Every key is optional.
+# The full list is in references/config-example.md in the skill directory.
+
+# The template to fill. Edit that file to change the sections and the voice.
+template: '~/.config/readme-shine/templates/default.md'
+
+# Where the README is written, relative to this project.
+output: knowledge/pages/general/README.md
+
+# Show an outline for approval before drafting. Set to false to skip it.
+#confirm: true
+
+# Support text, inserted verbatim. Here it defers to the knowledge funding
+# plugin, which know bind resolves. check.php reports it as an unexpanded
+# token; that is expected, not a problem with the page.
+support: '{{ funding|raw }}'
