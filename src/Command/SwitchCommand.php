@@ -144,7 +144,7 @@ class SwitchCommand extends Command {
       $choices[$option['label']] = $this->describeOption($option);
     }
 
-    return (string) select('Switch audio to', $choices);
+    return (string) select('Switch audio to', $choices, scroll: count($choices));
   }
 
 }
