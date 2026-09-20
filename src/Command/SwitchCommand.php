@@ -45,7 +45,7 @@ class SwitchCommand extends Command {
       ->setDescription('Switch audio to a configured option')
       ->addArgument('label', InputArgument::OPTIONAL, 'The label or alias of an option in your configuration; omit to list your options')
       ->addOption('refresh', NULL, InputOption::VALUE_NONE, 'Flush the cache first, so the configuration and devices are read again')
-      ->setHelp('Switches the audio input and output to the configuration option with the given label or alias (letter case is ignored), then runs that option\'s scripts. With no label, lets you choose from your configured options with the cursor keys (or lists them, with aliases in parentheses, when not run in a terminal). Use --refresh after editing your configuration or connecting a new device. Add -v to see the engine, cache directory and each command that is run.');
+      ->setHelp('Switches the audio input and output to the configuration option with the given label or alias (letter case is ignored), then runs that option\'s scripts. With no label, lets you choose from your configured options with the cursor keys (or lists them, with aliases in parentheses, when not run in a terminal). Use --refresh after connecting a new device. Add -v to see the engine, cache directory and each command that is run.');
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {

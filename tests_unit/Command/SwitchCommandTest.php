@@ -252,15 +252,15 @@ class SwitchCommandTest extends TestCase {
     $this->assertStringContainsString('❌ Invalid configuration:', $tester->getErrorOutput());
   }
 
-  public function testConfigIsCachedWithoutRefresh() {
+  public function testEditedConfigIsPickedUpWithoutRefresh() {
     $tester = $this->getTester($this->getEngine());
     $this->assertSame(Command::SUCCESS, $tester->execute([]));
     $this->writeConfig($this->getRenamedOptions());
 
     $tester = $this->getTester($this->getEngine());
     $tester->execute([]);
-    $this->assertStringContainsString('🔹 Phone', $tester->getDisplay());
-    $this->assertStringNotContainsString('Renamed', $tester->getDisplay());
+    $this->assertStringContainsString('Renamed', $tester->getDisplay());
+    $this->assertStringNotContainsString('🔹 Phone', $tester->getDisplay());
   }
 
   public function testRefreshFlushesTheCacheThenSwitches() {
@@ -270,7 +270,6 @@ class SwitchCommandTest extends TestCase {
     file_put_contents($cache_dir . '/MacOSAudioDevicesEngine.device_index_include.input.php', '<?php return [];');
     $this->assertFileExists($cache_dir . '/config.php');
 
-    // The edit is invisible until the cache is flushed.
     $this->writeConfig($this->getRenamedOptions());
     $tester = $this->getTester($this->getEngine());
     $status = $tester->execute(['label' => 'renamed', '--refresh' => TRUE], ['capture_stderr_separately' => TRUE]);
