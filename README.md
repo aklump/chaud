@@ -180,7 +180,7 @@ The file is validated against `json_schema/config.schema.json` before it is cach
 
 ### Cache
 
-chaudio caches the validated configuration and the device lookups in `$TMPDIR/com.aklump.chaudio`. Editing the configuration file is picked up automatically, because the cached copy is checked against the file on every run. Run `chaudio cache:clear` after connecting a new device, or add `--refresh` to a switch to clear the cache and switch in one step. The cache holds nothing you cannot rebuild, so deleting the folder is always safe.
+chaudio caches the validated configuration and the device lookups in `$TMPDIR/com.aklump.chaudio`. Run `chaudio cache:clear` after editing the file or connecting a new device, or add `--refresh` to a switch to clear the cache and switch in one step. The cache holds nothing you cannot rebuild, so deleting the folder is always safe.
 
 ## Usage
 

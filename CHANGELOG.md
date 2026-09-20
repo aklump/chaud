@@ -7,7 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Edits to `~/.chaudio.yml` now take effect on the next run. The cached copy of the config is stored with a hash of the file and is rebuilt when the file changes, so `cache:clear` and `--refresh` are only needed after connecting a new device. Before, a change such as adding `scripts` was ignored until the cache was cleared.
 - The default config now uses your Mac's built-in devices, so it works on any Mac, and shows how to use emoji in labels, with commented examples for USB and Bluetooth devices. It only applies to new installs; an existing `~/.chaudio.yml` is not changed.
 - The Alfred workflow keyword is now `chauds` (was `chaudio`), quicker to type for switching; it runs `chaudio switch`. Re-import `Change Audio.alfredworkflow`.
 - **BREAKING:** The config file is now YAML, `~/.chaudio.yml`, instead of `~/.chaudio.json`. An existing `~/.chaudio.json` is converted automatically the first time you run chaudio and no `.yml` exists; you may then delete the JSON file.
