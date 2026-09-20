@@ -5,6 +5,7 @@ namespace AKlump\ChangeAudio;
 
 use AKlump\ChangeAudio\Cache\CacheManager;
 use RuntimeException;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * Manages configuration for the application.
@@ -17,7 +18,7 @@ use RuntimeException;
  */
 class ConfigManager {
 
-  const CONFIG_BASENAME = '.' . App::BIN . '.json';
+  const CONFIG_BASENAME = '.' . App::BIN . '.yml';
 
   /**
    * @var \AKlump\ChangeAudio\Cache\CacheManager
@@ -38,7 +39,7 @@ class ConfigManager {
     $this->cache = $cache_manager;
     $user_home = $user_home ?: $_SERVER['HOME'] ?? '';
     $this->setUserHome($user_home);
-    $this->defaultConfigPath = $default_config_path ?: __DIR__ . '/../install/config.json';
+    $this->defaultConfigPath = $default_config_path ?: __DIR__ . '/../install/config.yml';
   }
 
   private function setUserHome(string $user_home): void {
@@ -56,11 +57,11 @@ class ConfigManager {
     }
     else {
       $config_path = $this->path();
-      if (!file_exists($config_path) && !$this->installDefaultConfig($config_path)) {
+      if (!file_exists($config_path) && !$this->migrateLegacyConfig($config_path) && !$this->installDefaultConfig($config_path)) {
         $message = error_get_last()['message'] ?? '';
         throw new RuntimeException(sprintf("Failed to install config at: %s\n$message", $config_path));
       }
-      $config = json_decode(file_get_contents($config_path), TRUE);
+      $config = $this->renameLegacyDeviceKeys(Yaml::parseFile($config_path));
       $this->validationErrors = (new ValidateConfiguration())($config);
       if (!$this->validationErrors) {
         file_put_contents($config_include, '<?php return ' . var_export($config, TRUE) . ';');
@@ -72,6 +73,42 @@ class ConfigManager {
 
   public function path(): string {
     return $this->userHome . '/' . self::CONFIG_BASENAME;
+  }
+
+  /**
+   * Accept the former "device" key as "name", matching `chaudio devices`.
+   */
+  private function renameLegacyDeviceKeys($config) {
+    if (!is_array($config) || !is_array($config['options'] ?? NULL)) {
+      return $config;
+    }
+    foreach ($config['options'] as $i => $option) {
+      foreach (['input', 'output'] as $direction) {
+        if (is_array($option[$direction] ?? NULL) && array_key_exists('device', $option[$direction]) && !array_key_exists('name', $option[$direction])) {
+          $option[$direction]['name'] = $option[$direction]['device'];
+          unset($option[$direction]['device']);
+        }
+      }
+      $config['options'][$i] = $option;
+    }
+
+    return $config;
+  }
+
+  /**
+   * Convert a pre-YAML ~/.chaudio.json into the YAML config file.
+   */
+  private function migrateLegacyConfig(string $config_path): bool {
+    $legacy_path = $this->userHome . '/.' . App::BIN . '.json';
+    if (!file_exists($legacy_path)) {
+      return FALSE;
+    }
+    $legacy = json_decode(file_get_contents($legacy_path), TRUE);
+    if (!is_array($legacy)) {
+      return FALSE;
+    }
+
+    return @file_put_contents($config_path, Yaml::dump($legacy, 6, 2)) !== FALSE;
   }
 
   private function installDefaultConfig(string $config_path): bool {

@@ -61,6 +61,24 @@ class ConfigManagerTest extends TestCase {
     $this->assertFileDoesNotExist($this->cacheDir . '/config.php', 'Assert an invalid config is not cached.');
   }
 
+  public function testLegacyJsonConfigIsMigratedToYaml() {
+    $options = [['label' => 'A', 'input' => ['name' => 'x'], 'output' => ['name' => 'y']], ['label' => 'B', 'input' => ['name' => 'x'], 'output' => ['name' => 'z']]];
+    file_put_contents($this->userHome . '/.chaudio.json', json_encode(['options' => $options]));
+    $manager = new ConfigManager(new CacheManager(), $this->userHome, $this->defaultConfig);
+    $this->assertSame(['options' => $options], $manager->get());
+    $this->assertFileExists($this->userHome . '/' . ConfigManager::CONFIG_BASENAME);
+    $this->assertSame([], $manager->getValidationErrors());
+  }
+
+  public function testLegacyDeviceKeyIsReadAsName() {
+    file_put_contents($this->userHome . '/' . ConfigManager::CONFIG_BASENAME, "options:\n  - label: A\n    input: {device: Mic}\n    output: {device: 71}\n  - label: B\n    output: {name: Speakers}\n");
+    $manager = new ConfigManager(new CacheManager(), $this->userHome, $this->defaultConfig);
+    $config = $manager->get();
+    $this->assertSame([], $manager->getValidationErrors());
+    $this->assertSame(['name' => 'Mic'], $config['options'][0]['input']);
+    $this->assertSame(['name' => 71], $config['options'][0]['output']);
+  }
+
   public function testNonExistentUserHomeThrows() {
     $user_home = $this->getTestFileFilepath('user/');
     $this->deleteTestFile($user_home);
@@ -91,7 +109,7 @@ class ConfigManagerTest extends TestCase {
     putenv('CACHE_PATH=' . $this->cacheDir);
     $this->assertDirectoryDoesNotExist($this->cacheDir);
 
-    $this->defaultConfig = realpath($this->getTestFileFilepath() . '/../default_config.json');
+    $this->defaultConfig = realpath($this->getTestFileFilepath() . '/../default_config.yml');
     $this->assertFileExists($this->defaultConfig);
     parent::setUp();
   }

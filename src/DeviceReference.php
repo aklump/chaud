@@ -14,9 +14,9 @@ use InvalidArgumentException;
 class DeviceReference {
 
   /**
-   * The value is a device name or numeric ID (config key "device").
+   * The value is a device name or numeric ID (config key "name").
    */
-  const DEVICE = 'device';
+  const NAME = 'name';
 
   /**
    * The value is a CoreAudio UID (config key "uid"), which survives reboot.
@@ -30,32 +30,40 @@ class DeviceReference {
    */
   private $value;
 
+  private ?DeviceReference $fallback;
+
   /**
    * @param string $kind One of the class constants.
    * @param string|int $value
+   * @param \AKlump\ChangeAudio\DeviceReference|null $fallback The name
+   *   reference configured alongside a UID, for engines that cannot use a UID.
    */
-  public function __construct(string $kind, $value) {
-    if (!in_array($kind, [self::DEVICE, self::UID], TRUE)) {
+  public function __construct(string $kind, $value, ?DeviceReference $fallback = NULL) {
+    if (!in_array($kind, [self::NAME, self::UID], TRUE)) {
       throw new InvalidArgumentException(sprintf('Unknown device reference kind: %s', $kind));
     }
     $this->kind = $kind;
     $this->value = $value;
+    $this->fallback = $fallback;
   }
 
   /**
    * @param array $device_config An option's "input" or "output" config, which
-   *   has either a "uid" or a "device" key.
+   *   has a "uid", a "name" or both.  When both are given the "uid" is used
+   *   and the "name" is kept as the fallback.
    *
    * @return static
    */
   public static function fromConfig(array $device_config): self {
     if (isset($device_config[self::UID])) {
-      return new self(self::UID, (string) $device_config[self::UID]);
+      $fallback = isset($device_config[self::NAME]) ? new self(self::NAME, $device_config[self::NAME]) : NULL;
+
+      return new self(self::UID, (string) $device_config[self::UID], $fallback);
     }
-    if (isset($device_config[self::DEVICE])) {
-      return new self(self::DEVICE, $device_config[self::DEVICE]);
+    if (isset($device_config[self::NAME])) {
+      return new self(self::NAME, $device_config[self::NAME]);
     }
-    throw new InvalidArgumentException('A device configuration needs a "device" or a "uid".');
+    throw new InvalidArgumentException('A device configuration needs a "name" or a "uid".');
   }
 
   public function getKind(): string {
@@ -67,6 +75,14 @@ class DeviceReference {
    */
   public function getValue() {
     return $this->value;
+  }
+
+  /**
+   * @return \AKlump\ChangeAudio\DeviceReference|null The configured name
+   *   reference that accompanies a UID, if any.
+   */
+  public function getFallback(): ?DeviceReference {
+    return $this->fallback;
   }
 
   public function isUid(): bool {

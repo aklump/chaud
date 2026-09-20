@@ -37,13 +37,13 @@ class ConfigCommandTest extends TestCase {
   }
 
   private function getTester(): CommandTester {
-    $config = new ConfigManager(new CacheManager(), $this->userHome, __DIR__ . '/../../install/config.json');
+    $config = new ConfigManager(new CacheManager(), $this->userHome, __DIR__ . '/../../install/config.yml');
 
     return new CommandTester(new ConfigCommand($config));
   }
 
   public function testInstallsDefaultConfigWhenMissingAndPrintsPath() {
-    $path = $this->userHome . '/.chaudio.json';
+    $path = $this->userHome . '/.chaudio.yml';
     $this->assertFileDoesNotExist($path);
     $tester = $this->getTester();
     $this->assertSame(Command::SUCCESS, $tester->execute([]));
@@ -52,7 +52,7 @@ class ConfigCommandTest extends TestCase {
   }
 
   public function testExistingConfigIsNotOverwritten() {
-    $path = $this->userHome . '/.chaudio.json';
+    $path = $this->userHome . '/.chaudio.yml';
     $contents = '{"options":[]}';
     file_put_contents($path, $contents);
     $tester = $this->getTester();
@@ -62,7 +62,7 @@ class ConfigCommandTest extends TestCase {
   }
 
   public function testNameAndDescription() {
-    $config = new ConfigManager(new CacheManager(), $this->userHome, __DIR__ . '/../../install/config.json');
+    $config = new ConfigManager(new CacheManager(), $this->userHome, __DIR__ . '/../../install/config.yml');
     $command = new ConfigCommand($config);
     $this->assertSame('config', $command->getName());
     $this->assertNotEmpty($command->getDescription());

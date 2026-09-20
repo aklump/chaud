@@ -177,7 +177,7 @@ class MacOSAudioDevicesEngineTest extends TestCase {
   }
 
   private function name($value): DeviceReference {
-    return new DeviceReference(DeviceReference::DEVICE, $value);
+    return new DeviceReference(DeviceReference::NAME, $value);
   }
 
   private function uid(string $value): DeviceReference {

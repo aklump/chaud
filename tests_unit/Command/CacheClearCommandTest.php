@@ -52,6 +52,7 @@ class CacheClearCommandTest extends TestCase {
   public function testNameAndDescription() {
     $command = new CacheClearCommand(new CacheManager());
     $this->assertSame('cache:clear', $command->getName());
+    $this->assertSame(['cc'], $command->getAliases());
     $this->assertNotEmpty($command->getDescription());
   }
 

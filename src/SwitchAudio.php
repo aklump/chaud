@@ -146,6 +146,9 @@ class SwitchAudio {
     if (!$device_config) {
       return '';
     }
+    if (isset($device_config[DeviceReference::UID], $device_config[DeviceReference::NAME]) && !is_numeric($device_config[DeviceReference::NAME])) {
+      return (string) $device_config[DeviceReference::NAME];
+    }
     $reference = DeviceReference::fromConfig($device_config);
     if (!$reference->isUid() && !is_numeric($reference->getValue())) {
       return (string) $reference;

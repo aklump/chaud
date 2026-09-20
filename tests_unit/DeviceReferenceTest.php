@@ -23,15 +23,15 @@ class DeviceReferenceTest extends TestCase {
   }
 
   public function testFromConfigWithDevice() {
-    $reference = DeviceReference::fromConfig(['device' => 'Headphones', 'level' => 0.5]);
-    $this->assertSame(DeviceReference::DEVICE, $reference->getKind());
+    $reference = DeviceReference::fromConfig(['name' => 'Headphones', 'level' => 0.5]);
+    $this->assertSame(DeviceReference::NAME, $reference->getKind());
     $this->assertFalse($reference->isUid());
     $this->assertSame('Headphones', $reference->getValue());
     $this->assertSame('Headphones', (string) $reference);
   }
 
   public function testFromConfigKeepsANumericDeviceValue() {
-    $this->assertSame(73, DeviceReference::fromConfig(['device' => 73])->getValue());
+    $this->assertSame(73, DeviceReference::fromConfig(['name' => 73])->getValue());
   }
 
   public function testFromConfigWithUid() {
@@ -39,6 +39,14 @@ class DeviceReferenceTest extends TestCase {
     $this->assertSame(DeviceReference::UID, $reference->getKind());
     $this->assertTrue($reference->isUid());
     $this->assertSame('BuiltInSpeakerDevice', $reference->getValue());
+  }
+
+  public function testFromConfigWithUidAndDevicePrefersUidAndKeepsNameAsFallback() {
+    $reference = DeviceReference::fromConfig(['uid' => 'BuiltInSpeakerDevice', 'name' => 'Speakers']);
+    $this->assertTrue($reference->isUid());
+    $this->assertSame('BuiltInSpeakerDevice', $reference->getValue());
+    $this->assertSame('Speakers', $reference->getFallback()->getValue());
+    $this->assertNull(DeviceReference::fromConfig(['uid' => 'x'])->getFallback());
   }
 
   public function testFromConfigWithNeitherKeyThrows() {
@@ -53,10 +61,10 @@ class DeviceReferenceTest extends TestCase {
 
   public function testMatchesByIdNameAndUid() {
     $device = $this->getDevice();
-    $this->assertTrue((new DeviceReference(DeviceReference::DEVICE, 71))->matches($device));
-    $this->assertTrue((new DeviceReference(DeviceReference::DEVICE, '71'))->matches($device));
-    $this->assertTrue((new DeviceReference(DeviceReference::DEVICE, 'MacBook Pro Speakers'))->matches($device));
-    $this->assertFalse((new DeviceReference(DeviceReference::DEVICE, 'Other'))->matches($device));
+    $this->assertTrue((new DeviceReference(DeviceReference::NAME, 71))->matches($device));
+    $this->assertTrue((new DeviceReference(DeviceReference::NAME, '71'))->matches($device));
+    $this->assertTrue((new DeviceReference(DeviceReference::NAME, 'MacBook Pro Speakers'))->matches($device));
+    $this->assertFalse((new DeviceReference(DeviceReference::NAME, 'Other'))->matches($device));
     $this->assertTrue((new DeviceReference(DeviceReference::UID, 'BuiltInSpeakerDevice'))->matches($device));
     $this->assertFalse((new DeviceReference(DeviceReference::UID, 'Other'))->matches($device));
   }

@@ -18,6 +18,8 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+use function Laravel\Prompts\select;
+
 class SwitchCommand extends Command {
 
   private ConfigManager $config;
@@ -43,7 +45,7 @@ class SwitchCommand extends Command {
       ->setDescription('Switch audio to a configured option')
       ->addArgument('label', InputArgument::OPTIONAL, 'The label or alias of an option in your configuration; omit to list your options')
       ->addOption('refresh', NULL, InputOption::VALUE_NONE, 'Flush the cache first, so the configuration and devices are read again')
-      ->setHelp('Switches the audio input and output to the configuration option with the given label or alias (letter case is ignored), then runs that option\'s scripts. With no label, lists your configured options and their aliases. Use --refresh after editing your configuration or connecting a new device. Add -v to see the engine, cache directory and each command that is run.');
+      ->setHelp('Switches the audio input and output to the configuration option with the given label or alias (letter case is ignored), then runs that option\'s scripts. With no label, lets you choose from your configured options with the cursor keys (or lists them, with aliases in parentheses, when not run in a terminal). Use --refresh after editing your configuration or connecting a new device. Add -v to see the engine, cache directory and each command that is run.');
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
@@ -66,9 +68,14 @@ class SwitchCommand extends Command {
 
     $label = $input->getArgument('label');
     if ($label === NULL) {
-      $this->listOptions($output, $config['options'] ?? []);
+      if ($this->canPrompt($input)) {
+        $label = $this->promptForLabel($config['options'] ?? []);
+      }
+      else {
+        $this->listOptions($output, $config['options'] ?? []);
 
-      return Command::SUCCESS;
+        return Command::SUCCESS;
+      }
     }
 
     $resolver = new OptionResolver($config['options'] ?? []);
@@ -110,16 +117,34 @@ class SwitchCommand extends Command {
   }
 
   /**
-   * Print each option's label and, indented beneath it, its aliases.
+   * Print one option per line, with its aliases in parentheses at the end.
    */
   private function listOptions(OutputInterface $output, array $options): void {
-    $indent = '     ';
     foreach ($options as $option) {
-      $output->writeln('🔹 ' . $option['label'], OutputInterface::OUTPUT_RAW);
-      foreach (($option['aliases'] ?? []) as $alias) {
-        $output->writeln($indent . $alias, OutputInterface::OUTPUT_RAW);
-      }
+      $output->writeln('🔹 ' . $this->describeOption($option), OutputInterface::OUTPUT_RAW);
     }
+  }
+
+  private function describeOption(array $option): string {
+    $aliases = $option['aliases'] ?? [];
+
+    return $option['label'] . ($aliases ? ' (' . implode(', ', $aliases) . ')' : '');
+  }
+
+  private function canPrompt(InputInterface $input): bool {
+    return $input->isInteractive() && stream_isatty(STDIN) && stream_isatty(STDOUT);
+  }
+
+  /**
+   * Let the user pick an option with the cursor keys.
+   */
+  private function promptForLabel(array $options): string {
+    $choices = [];
+    foreach ($options as $option) {
+      $choices[$option['label']] = $this->describeOption($option);
+    }
+
+    return (string) select('Switch audio to', $choices);
   }
 
 }

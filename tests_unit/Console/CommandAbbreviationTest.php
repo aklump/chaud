@@ -56,9 +56,9 @@ class CommandAbbreviationTest extends TestCase {
     $home = $this->getTestFileFilepath('home/', TRUE);
     $_SERVER['HOME'] = $home;
     putenv('CACHE_PATH=' . $this->getTestFileFilepath('cache/', TRUE));
-    file_put_contents($home . '/.chaudio.json', json_encode(['options' => [
-      ['label' => 'Phone', 'output' => ['device' => 'Headphones']],
-      ['label' => 'List', 'output' => ['device' => 'Speakers']],
+    file_put_contents($home . '/.chaudio.yml', json_encode(['options' => [
+      ['label' => 'Phone', 'output' => ['name' => 'Headphones']],
+      ['label' => 'List', 'output' => ['name' => 'Speakers']],
     ]]));
     $this->ran = [];
   }

@@ -44,7 +44,7 @@ class DevicesCommandTest extends TestCase {
   }
 
   private function writeConfig(array $options): void {
-    file_put_contents($this->userHome . '/.chaudio.json', json_encode(['options' => $options]));
+    file_put_contents($this->userHome . '/.chaudio.yml', json_encode(['options' => $options]));
   }
 
   private function getDevices(): array {
@@ -96,7 +96,7 @@ class DevicesCommandTest extends TestCase {
   }
 
   private function getTester(?EngineInterface $engine): CommandTester {
-    $config = new ConfigManager(new CacheManager(), $this->userHome, __DIR__ . '/../../install/config.json');
+    $config = new ConfigManager(new CacheManager(), $this->userHome, __DIR__ . '/../../install/config.yml');
     $get_engine = new class($engine) extends GetAudioEngine {
 
       private ?EngineInterface $engine;
@@ -117,17 +117,17 @@ class DevicesCommandTest extends TestCase {
     $this->writeConfig([
       [
         'label' => 'Phone',
-        'input' => ['device' => 'MacBook Pro Microphone'],
-        'output' => ['device' => 'External Headphones'],
+        'input' => ['name' => 'MacBook Pro Microphone'],
+        'output' => ['name' => 'External Headphones'],
       ],
       [
         'label' => 'Speakerphone',
-        'output' => ['device' => 71],
+        'output' => ['name' => 71],
       ],
       [
         'label' => 'Desk',
-        'input' => ['device' => 'MacBook Pro Microphone'],
-        'output' => ['device' => 'MacBook Pro Speakers'],
+        'input' => ['name' => 'MacBook Pro Microphone'],
+        'output' => ['name' => 'MacBook Pro Speakers'],
       ],
     ]);
     $tester = $this->getTester($this->getEngine($this->getDevices()));
@@ -154,7 +154,7 @@ class DevicesCommandTest extends TestCase {
 
   public function testNameMatchMarksEveryDeviceWithThatName() {
     $this->writeConfig([
-      ['label' => 'Both', 'output' => ['device' => 'USB Headset']],
+      ['label' => 'Both', 'output' => ['name' => 'USB Headset']],
     ]);
     $devices = [
       (new Device())->setId(10)->setName('USB Headset')->setType(DeviceTypes::OUTPUT),
@@ -189,7 +189,7 @@ class DevicesCommandTest extends TestCase {
   public function testConfigWithoutDeviceOrUidDoesNotBreakTheListing() {
     $this->writeConfig([
       ['label' => 'Broken', 'output' => ['level' => 0.5]],
-      ['label' => 'Fine', 'output' => ['device' => 71]],
+      ['label' => 'Fine', 'output' => ['name' => 71]],
     ]);
     $tester = $this->getTester($this->getEngine($this->getDevices()));
     $this->assertSame(Command::SUCCESS, $tester->execute([]));
@@ -210,7 +210,7 @@ class DevicesCommandTest extends TestCase {
   }
 
   public function testNameAndAlias() {
-    $config = new ConfigManager(new CacheManager(), $this->userHome, __DIR__ . '/../../install/config.json');
+    $config = new ConfigManager(new CacheManager(), $this->userHome, __DIR__ . '/../../install/config.yml');
     $command = new DevicesCommand($config, new GetAudioEngine());
     $this->assertSame('devices', $command->getName());
     $this->assertSame(['d'], $command->getAliases());

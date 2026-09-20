@@ -130,8 +130,8 @@ class SwitchAudioTest extends TestCase {
     $switch = new SwitchAudio($this->getEngine(), $runner);
     $result = $switch([
       'label' => 'Phone',
-      'input' => ['device' => 'Mic'],
-      'output' => ['device' => 'Headphones'],
+      'input' => ['name' => 'Mic'],
+      'output' => ['name' => 'Headphones'],
     ]);
     $this->assertTrue($result->isSuccess());
     $this->assertSame(0, $result->getExitCode());
@@ -146,8 +146,8 @@ class SwitchAudioTest extends TestCase {
     $switch = new SwitchAudio($this->getEngine(), $runner);
     $result = $switch([
       'label' => 'Phone',
-      'input' => ['device' => 'Mic'],
-      'output' => ['device' => 'Headphones'],
+      'input' => ['name' => 'Mic'],
+      'output' => ['name' => 'Headphones'],
     ]);
     $this->assertFalse($result->isSuccess());
     $this->assertSame(1, $result->getExitCode());
@@ -162,8 +162,8 @@ class SwitchAudioTest extends TestCase {
     $switch = new SwitchAudio($this->getEngine(), $runner);
     $result = $switch([
       'label' => 'Phone',
-      'input' => ['device' => 'Mic'],
-      'output' => ['device' => 'Headphones'],
+      'input' => ['name' => 'Mic'],
+      'output' => ['name' => 'Headphones'],
     ]);
     $this->assertSame(1, $result->getExitCode());
     $this->assertSame(['❌ Failed to change output device.', '⚠️ Audio remains unchanged.'], $result->getErrors());
@@ -174,7 +174,7 @@ class SwitchAudioTest extends TestCase {
     $switch = new SwitchAudio($this->getEngine(), $runner);
     $result = $switch([
       'label' => 'Phone',
-      'output' => ['device' => 'Headphones'],
+      'output' => ['name' => 'Headphones'],
       'scripts' => ['good script', 'bad script', 'last script'],
     ]);
     $this->assertSame(1, $result->getExitCode());
@@ -187,8 +187,8 @@ class SwitchAudioTest extends TestCase {
     $switch = new SwitchAudio($this->getEngine(), $runner);
     $result = $switch([
       'label' => 'Phone',
-      'input' => ['device' => 'Mic', 'level' => 0.5],
-      'output' => ['device' => 'Headphones', 'level' => 25],
+      'input' => ['name' => 'Mic', 'level' => 0.5],
+      'output' => ['name' => 'Headphones', 'level' => 25],
       'scripts' => ['after'],
     ]);
     $this->assertTrue($result->isSuccess());
@@ -206,7 +206,7 @@ class SwitchAudioTest extends TestCase {
     $switch = new SwitchAudio($this->getEngine(), $runner);
     $result = $switch([
       'label' => 'Phone',
-      'output' => ['device' => 'Headphones', 'level' => 0.5],
+      'output' => ['name' => 'Headphones', 'level' => 0.5],
     ]);
     $this->assertTrue($result->isSuccess());
   }
@@ -216,8 +216,8 @@ class SwitchAudioTest extends TestCase {
     $switch = new SwitchAudio($this->getEngine([], FALSE), $runner);
     $result = $switch([
       'label' => 'Phone',
-      'input' => ['device' => 'Mic', 'level' => 0.5],
-      'output' => ['device' => 'Headphones', 'level' => 0.5],
+      'input' => ['name' => 'Mic', 'level' => 0.5],
+      'output' => ['name' => 'Headphones', 'level' => 0.5],
     ]);
     $this->assertTrue($result->isSuccess());
     $this->assertSame(['set-in Mic', 'set-out Headphones'], $runner->ran);
@@ -228,8 +228,8 @@ class SwitchAudioTest extends TestCase {
     $switch = new SwitchAudio($this->getEngine([], TRUE, [], FALSE), $runner);
     $result = $switch([
       'label' => 'Phone',
-      'input' => ['device' => 'Mic', 'level' => 0.5],
-      'output' => ['device' => 'Headphones', 'level' => 0.25],
+      'input' => ['name' => 'Mic', 'level' => 0.5],
+      'output' => ['name' => 'Headphones', 'level' => 0.25],
     ]);
     $this->assertTrue($result->isSuccess());
     $this->assertSame(['set-in Mic', 'set-out Headphones', 'level-out Headphones 0.25'], $runner->ran);
@@ -240,7 +240,7 @@ class SwitchAudioTest extends TestCase {
     $switch = new SwitchAudio($this->getEngine([], TRUE, [], FALSE), $runner);
     $result = $switch([
       'label' => 'Phone',
-      'input' => ['device' => 'Mic', 'level' => 0.5],
+      'input' => ['name' => 'Mic', 'level' => 0.5],
     ]);
     $this->assertTrue($result->isSuccess());
     $this->assertSame(['set-in Mic'], $runner->ran);
@@ -250,7 +250,7 @@ class SwitchAudioTest extends TestCase {
     $switch = new SwitchAudio($this->getEngine(), $this->getRunner());
     $result = $switch([
       'label' => 'Speakerphone',
-      'output' => ['device' => 'MacBook Pro Speakers'],
+      'output' => ['name' => 'MacBook Pro Speakers'],
     ]);
     $this->assertSame('Speakerphone is active (🔈 MacBook Pro Speakers)', $result->getMessage());
   }
@@ -259,7 +259,7 @@ class SwitchAudioTest extends TestCase {
     $switch = new SwitchAudio($this->getEngine(), $this->getRunner());
     $result = $switch([
       'label' => 'Mic only',
-      'input' => ['device' => 'External Microphone'],
+      'input' => ['name' => 'External Microphone'],
     ]);
     $this->assertSame('Mic only is active (🎤 External Microphone)', $result->getMessage());
   }
@@ -269,9 +269,9 @@ class SwitchAudioTest extends TestCase {
     // touching the others; each switch is now independent.
     $runner = $this->getRunner();
     $switch = new SwitchAudio($this->getEngine([], TRUE, ['Disconnected Headset']), $runner);
-    $missing = $switch(['label' => 'Headset', 'input' => ['device' => 'Disconnected Headset']]);
+    $missing = $switch(['label' => 'Headset', 'input' => ['name' => 'Disconnected Headset']]);
     $this->assertFalse($missing->isSuccess());
-    $ok = $switch(['label' => 'Speakerphone', 'output' => ['device' => 'MacBook Pro Speakers']]);
+    $ok = $switch(['label' => 'Speakerphone', 'output' => ['name' => 'MacBook Pro Speakers']]);
     $this->assertTrue($ok->isSuccess());
     $this->assertSame(['set-out MacBook Pro Speakers'], $runner->ran);
   }
@@ -281,8 +281,8 @@ class SwitchAudioTest extends TestCase {
     $switch = new SwitchAudio($this->getEngine([], TRUE, ['Headphones']), $runner);
     $result = $switch([
       'label' => 'Phone',
-      'input' => ['device' => 'Mic'],
-      'output' => ['device' => 'Headphones'],
+      'input' => ['name' => 'Mic'],
+      'output' => ['name' => 'Headphones'],
       'scripts' => ['never'],
     ]);
     $this->assertFalse($result->isSuccess());
@@ -299,8 +299,8 @@ class SwitchAudioTest extends TestCase {
     $switch = new SwitchAudio($this->getEngine($devices), $this->getRunner());
     $result = $switch([
       'label' => 'Desk',
-      'input' => ['device' => 62],
-      'output' => ['device' => '71'],
+      'input' => ['name' => 62],
+      'output' => ['name' => '71'],
     ]);
     $this->assertSame('Desk is active (🎤 MacBook Pro Microphone  🔈 MacBook Pro Speakers)', $result->getMessage());
   }
@@ -309,7 +309,7 @@ class SwitchAudioTest extends TestCase {
     $switch = new SwitchAudio($this->getEngine(), $this->getRunner());
     $result = $switch([
       'label' => 'Desk',
-      'output' => ['device' => 5],
+      'output' => ['name' => 5],
     ]);
     $this->assertSame('Desk is active ()', $result->getMessage());
   }
@@ -360,7 +360,7 @@ class SwitchAudioTest extends TestCase {
     $switch = new SwitchAudio($this->getEngine([], TRUE, ['uid:Gone']), $runner);
     $result = $switch([
       'label' => 'Desk',
-      'input' => ['device' => 'Mic'],
+      'input' => ['name' => 'Mic'],
       'output' => ['uid' => 'Gone'],
     ]);
     $this->assertFalse($result->isSuccess());
@@ -375,7 +375,7 @@ class SwitchAudioTest extends TestCase {
     $switch = new SwitchAudio($this->getEngine([], TRUE, [], TRUE, ['uid:Nope']), $runner);
     $result = $switch([
       'label' => 'Desk',
-      'input' => ['device' => 'Mic'],
+      'input' => ['name' => 'Mic'],
       'output' => ['uid' => 'Nope'],
       'scripts' => ['never'],
     ]);

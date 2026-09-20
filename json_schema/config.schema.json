@@ -5,7 +5,7 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "device": {
+        "name": {
           "type": [
             "string",
             "integer"
@@ -13,7 +13,7 @@
         },
         "uid": {
           "type": "string",
-          "description": "The CoreAudio UID of the device, which survives a reboot; use instead of \"device\".",
+          "description": "The CoreAudio UID of the device, which survives a reboot; used in preference to \"name\" when both are given.",
           "minLength": 1
         },
         "level": {
@@ -23,10 +23,10 @@
           "maximum": 1
         }
       },
-      "oneOf": [
+      "anyOf": [
         {
           "required": [
-            "device"
+            "name"
           ]
         },
         {
