@@ -23,19 +23,30 @@ Print the configuration file's path. The first run creates it from the defaults:
 
 ```
 $ chaudio config
-✏️ /Users/you/.chaudio.json
+✏️ /Users/you/.chaudio.yml
 ```
 
 List the devices on your Mac with `chaudio devices` (this needs the default engine you just installed), put their names, or better their UIDs, into the two example options in that file, then switch:
 
 ```
 $ chaudio s phone
-Phone is active (🎤 External Microphone  🔈 External Headphones)
+Phone is active (🎙 External Microphone  🔈 External Headphones)
 $ chaudio s sp
-Speakerphone is active (🎤 MacBook Pro Microphone  🔈 MacBook Pro Speakers)
+Speakerphone is active (🎙 MacBook Pro Microphone  🔈 MacBook Pro Speakers)
 ```
 
 Run `chaudio -h` at any time to see the commands, and `chaudio <command> -h` for the details of one.
+
+### Check that it works
+
+The message chaudio prints only says it *ran* the switch. To see the change for yourself, watch macOS while you switch:
+
+1. Open **System Settings > Sound** and pick the **Output** tab (or **Input**, if the option you are testing sets a microphone).
+2. Click a device in the list that is *not* the one you are about to switch to, so you start from a known state.
+3. Run the switch, for example `chaudio s phone`, without closing the window.
+4. The highlighted device in the list changes to the one your option names. If it does, chaudio is working. To test the Alfred workflow, do the same but type `chauds phone` in Alfred instead.
+
+If the highlight does not move, run the switch again with `-v` (`chaudio s phone -v`) to see the engine and each command that was run. A device that cannot be found, such as a Bluetooth headset that is turned off, is reported on stderr and leaves your audio unchanged, so check that the device is connected and listed by `chaudio devices`.
 
 ## Requirements
 
@@ -70,7 +81,9 @@ Only macos-audio-devices can list your devices. Under either of the other two, `
 
 ### Alfred workflow
 
-The repository also holds `Change Audio.alfredworkflow`. Double-click it to add the workflow to [Alfred](https://www.alfredapp.com), then type `chaudio` followed by a label or alias to switch without opening a terminal. The workflow runs `~/bin/chaudio s "$1" 2>&1`, so it expects the symlink above at exactly that path. Error messages, which chaudio writes to stderr, are merged into the output so that they appear in the notification too.
+The repository also holds `Change Audio.alfredworkflow`. Double-click it to add the workflow to [Alfred](https://www.alfredapp.com), then type `chauds` followed by a label or alias (`chauds b`) to switch without opening a terminal. The workflow runs `~/bin/chaudio switch "$1" 2>&1`, so it expects the symlink above at exactly that path. Error messages, which chaudio writes to stderr, are merged into the output so that they appear in the notification too.
+
+The keyword is `chauds`, not `chaudio switch`, on purpose: Alfred is for quick, repeated switching, so the keyword is as short as it can be while still being memorable, and it does only one job, switching (the `s` stands for switch). In a terminal you use the full `chaudio switch <label>` (or `chaudio s <label>`), because there the command name also gives you `devices`, `config` and `cache:clear`, and a self-describing command is easier to remember and to use in scripts. The workflow still calls `switch` by its full name, so it behaves exactly like the terminal command.
 
 ### Updating
 
@@ -78,67 +91,51 @@ Delete the `chaud` folder you installed earlier, then repeat the installation, i
 
 ## Configuration
 
-Run `chaudio config` to print the configuration file's path, which is `~/.chaudio.json`. If the file does not exist, chaudio creates it from the defaults shown below. Open it and edit the `options` list, which needs at least two entries.
+Run `chaudio config` to print the configuration file's path, which is `~/.chaudio.yml`. If the file does not exist, chaudio creates it from the defaults shown below. Open it and edit the `options` list, which needs at least two entries.
 
-```
-{
-    "options": [
-        {
-            "label": "Phone",
-            "aliases": [
-                "p"
-            ],
-            "input": {
-                "device": "External Microphone"
-            },
-            "output": {
-                "device": "External Headphones",
-                "level": 0.25
-            },
-            "scripts": [
-                "nowplaying-cli pause"
-            ]
-        },
-        {
-            "label": "Speakerphone",
-            "aliases": [
-                "sp"
-            ],
-            "input": {
-                "device": "MacBook Pro Microphone"
-            },
-            "output": {
-                "device": "MacBook Pro Speakers"
-            }
-        }
-    ]
-}
+```yaml
+options:
+  - label: Phone
+    aliases:
+      - p
+    input:
+      name: External Microphone
+    output:
+      name: External Headphones
+      level: 0.25
+    scripts:
+      - nowplaying-cli pause
+  - label: Speakerphone
+    aliases:
+      - sp
+    input:
+      name: MacBook Pro Microphone
+    output:
+      name: MacBook Pro Speakers
 ```
 
 Each option takes these keys:
 
 - `label` (required) is the name you type, matched case-insensitively. A label with spaces, such as `Desk Setup`, is typed quoted (`chaudio s "desk setup"`) or with underscores (`chaudio s desk_setup`).
 - `aliases` are shorter names for the same option.
-- `input` and `output` each identify a device with a `device` (its name, or its number) or with a `uid` (see below), never both, plus an optional `level` from 0 to 1. An option needs at least one of the two; leave one out to change only the other. Only the macos-audio-devices engine applies `level`, and only to the output; a `level` on `input` is accepted but ignored.
+- `input` and `output` each identify a device with a `name` (as in the `Name` column of `chaudio devices`, or the device's number) or with a `uid` (see below), or both (the `uid` is used, and the `name` is kept for reading and for engines that cannot use a UID), plus an optional `level` from 0 to 1. An option needs at least one of the two; leave one out to change only the other. Only the macos-audio-devices engine applies `level`, and only to the output; a `level` on `input` is accepted but ignored.
 - `scripts` are shell commands run after the switch. The default config's `nowplaying-cli pause` needs [nowplaying-cli](https://github.com/kirtan-shah/nowplaying-cli), which you install separately; remove that line if you don't use it. If a script fails, chaudio reports it and exits with status 1.
 
 ### Identifying devices: prefer `uid`
 
-Every device has a UID, an identifier assigned by macOS that survives a restart. Copy it from the `UID` column of `chaudio devices` and use it in place of `device`:
+Every device has a UID, an identifier assigned by macOS that survives a restart. Copy it from the `UID` column of `chaudio devices` and use it in place of `name`:
 
-```json
-{
-  "label": "Desk",
-  "output": {
-    "uid": "BuiltInSpeakerDevice",
-    "level": 0.5
-  }
-}
+```yaml
+- label: Desk
+  output:
+    name: MacBook Pro Speakers     # optional; a readable name, used if uid is omitted
+    uid: BuiltInSpeakerDevice      # used when present
+    level: 0.5
 ```
 
 A name is the next best choice, but two devices can share a name (in which case the first is used), and macOS or you can rename a device. A device number is the least reliable, because macOS reassigns those when the computer restarts.
 
-A `uid` works with macos-audio-devices and with `SwitchAudioSource` (which matches it as a substring, so paste the whole UID). The `~/bin/SwitchAudio` engine cannot be verified to understand UIDs, so it stops the switch with a message; use `device` with that engine.
+A `uid` works with macos-audio-devices and with `SwitchAudioSource` (which matches it as a substring, so paste the whole UID). The `~/bin/SwitchAudio` engine cannot be verified to understand UIDs, so it uses the `name` when you give both, and otherwise stops the switch with a message.
 
 If a device cannot be found, for example a Bluetooth headset that is disconnected, chaudio prints what it could not find on stderr, leaves your audio unchanged, and exits with status 1.
 
@@ -160,24 +157,22 @@ chaudio                       list the commands (same as -h and --help)
 chaudio <command> -h          help for one command
 chaudio -V                    print the name and version
 chaudio switch <label>        switch to a configured option (alias: s)
-chaudio s                     list your configured options and their aliases
+chaudio s                     choose an option with the cursor keys (or list them when not in a terminal)
 chaudio s <label> --refresh   clear the cache, then switch
 chaudio s <label> -v          switch, and print the engine, cache directory and commands run
 chaudio devices               list every audio device, with UIDs (alias: d)
 chaudio config                print the configuration path, creating the file if missing
-chaudio cache:clear           clear the cache
+chaudio cache:clear           clear the cache (alias: cc)
 ```
 
 `<label>` is a label or an alias from your configuration. The built-in `list`, `help`, and `completion` commands are available too, and command names can be abbreviated to any unique prefix (`chaudio sw phone`). Normal output goes to stdout and errors to stderr; the exit status is 0 on success and non-zero otherwise, so scripts can rely on it.
 
-Listing your options shows each label with its aliases beneath it:
+In a terminal, `chaudio s` lets you pick an option with the cursor keys. When output is piped, it lists one option per line with its aliases in parentheses:
 
 ```
 $ chaudio s
-🔹 Phone
-     p
-🔹 Speakerphone
-     sp
+🔹 Phone (p)
+🔹 Speakerphone (sp)
 ```
 
 Listing your devices marks the ones your options use. The `UID` column is what you copy into a `uid` key; a name in your config marks every device that has that name:
