@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- The Alfred workflow keyword is now `chauds` (was `chaudio`), quicker to type for switching; it runs `chaudio switch`. Re-import `Change Audio.alfredworkflow`.
 - **BREAKING:** The config file is now YAML, `~/.chaudio.yml`, instead of `~/.chaudio.json`. An existing `~/.chaudio.json` is converted automatically the first time you run chaudio and no `.yml` exists; you may then delete the JSON file.
 - Running `chaudio s` in a terminal shows a cursor-driven select list; otherwise options are listed one per line with aliases in parentheses.
 - **BREAKING:** The `device` key of `input` and `output` is renamed `name`, matching the columns of `chaudio devices` (`name`, `uid`). A config that still says `device` is read as `name`, but update it.

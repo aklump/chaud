@@ -136,7 +136,7 @@ class SwitchAudioTest extends TestCase {
     $this->assertTrue($result->isSuccess());
     $this->assertSame(0, $result->getExitCode());
     $this->assertSame([], $result->getErrors());
-    $this->assertSame('Phone is active (🎤 Mic  🔈 Headphones)', $result->getMessage());
+    $this->assertSame('Phone is active (🎙 Mic  🔈 Headphones)', $result->getMessage());
     $this->assertSame(['set-in Mic', 'set-out Headphones'], $runner->ran);
     $this->assertSame($runner->ran, $result->getCommands());
   }
@@ -261,7 +261,7 @@ class SwitchAudioTest extends TestCase {
       'label' => 'Mic only',
       'input' => ['name' => 'External Microphone'],
     ]);
-    $this->assertSame('Mic only is active (🎤 External Microphone)', $result->getMessage());
+    $this->assertSame('Mic only is active (🎙 External Microphone)', $result->getMessage());
   }
 
   public function testOneUnavailableOptionDoesNotAffectAnother() {
@@ -302,7 +302,7 @@ class SwitchAudioTest extends TestCase {
       'input' => ['name' => 62],
       'output' => ['name' => '71'],
     ]);
-    $this->assertSame('Desk is active (🎤 MacBook Pro Microphone  🔈 MacBook Pro Speakers)', $result->getMessage());
+    $this->assertSame('Desk is active (🎙 MacBook Pro Microphone  🔈 MacBook Pro Speakers)', $result->getMessage());
   }
 
   public function testUnknownNumericDeviceLeavesItOutOfTheMessage() {

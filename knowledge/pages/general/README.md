@@ -75,7 +75,9 @@ Only macos-audio-devices can list your devices. Under either of the other two, `
 
 ### Alfred workflow
 
-The repository also holds `Change Audio.alfredworkflow`. Double-click it to add the workflow to [Alfred](https://www.alfredapp.com), then type `chaudio` followed by a label or alias to switch without opening a terminal. The workflow runs `~/bin/chaudio s "$1" 2>&1`, so it expects the symlink above at exactly that path. Error messages, which chaudio writes to stderr, are merged into the output so that they appear in the notification too.
+The repository also holds `Change Audio.alfredworkflow`. Double-click it to add the workflow to [Alfred](https://www.alfredapp.com), then type `chauds` followed by a label or alias (`chauds b`) to switch without opening a terminal. The workflow runs `~/bin/chaudio switch "$1" 2>&1`, so it expects the symlink above at exactly that path. Error messages, which chaudio writes to stderr, are merged into the output so that they appear in the notification too.
+
+The keyword is `chauds`, not `chaudio switch`, on purpose: Alfred is for quick, repeated switching, so the keyword is as short as it can be while still being memorable, and it does only one job, switching (the `s` stands for switch). In a terminal you use the full `chaudio switch <label>` (or `chaudio s <label>`), because there the command name also gives you `devices`, `config` and `cache:clear`, and a self-describing command is easier to remember and to use in scripts. The workflow still calls `switch` by its full name, so it behaves exactly like the terminal command.
 
 ### Updating
 
