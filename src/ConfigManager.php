@@ -50,25 +50,40 @@ class ConfigManager {
   }
 
   public function get(): array {
-    $config = [];
+    $config_path = $this->path();
     $config_include = $this->cache->getPath() . '/config.php';
-    if (file_exists($config_include)) {
-      $config = require $config_include;
+    $hash_file = $this->cache->getPath() . '/config.hash';
+
+    // The cached config is only good for the exact file it was built from, so
+    // editing ~/.chaudio.yml never needs a manual cache clear.
+    if (file_exists($config_include) && $this->isCacheCurrent($config_path, $hash_file)) {
+      return require $config_include;
+    }
+
+    if (!file_exists($config_path) && !$this->migrateLegacyConfig($config_path) && !$this->installDefaultConfig($config_path)) {
+      $message = error_get_last()['message'] ?? '';
+      throw new RuntimeException(sprintf("Failed to install config at: %s\n$message", $config_path));
+    }
+    $config = $this->renameLegacyDeviceKeys(Yaml::parseFile($config_path));
+    $this->validationErrors = (new ValidateConfiguration())($config);
+    if ($this->validationErrors) {
+      @unlink($config_include);
+      @unlink($hash_file);
     }
     else {
-      $config_path = $this->path();
-      if (!file_exists($config_path) && !$this->migrateLegacyConfig($config_path) && !$this->installDefaultConfig($config_path)) {
-        $message = error_get_last()['message'] ?? '';
-        throw new RuntimeException(sprintf("Failed to install config at: %s\n$message", $config_path));
-      }
-      $config = $this->renameLegacyDeviceKeys(Yaml::parseFile($config_path));
-      $this->validationErrors = (new ValidateConfiguration())($config);
-      if (!$this->validationErrors) {
-        file_put_contents($config_include, '<?php return ' . var_export($config, TRUE) . ';');
-      }
+      file_put_contents($config_include, '<?php return ' . var_export($config, TRUE) . ';');
+      file_put_contents($hash_file, md5_file($config_path));
     }
 
     return $config;
+  }
+
+  private function isCacheCurrent(string $config_path, string $hash_file): bool {
+    if (!file_exists($config_path) || !file_exists($hash_file)) {
+      return FALSE;
+    }
+
+    return file_get_contents($hash_file) === md5_file($config_path);
   }
 
   public function path(): string {

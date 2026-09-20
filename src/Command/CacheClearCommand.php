@@ -22,7 +22,7 @@ class CacheClearCommand extends Command {
       ->setName('cache:clear')
       ->setAliases(['cc'])
       ->setDescription('Flush the cached config and device data')
-      ->setHelp('Removes the cached configuration and device index files. They are rebuilt the next time they are needed, so run this after editing your configuration or connecting a new device. The cache directory itself is kept.');
+      ->setHelp('Removes the cached configuration and device index files. They are rebuilt the next time they are needed, so run this after connecting a new device. Editing your configuration needs no clearing. The cache directory itself is kept.');
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
