@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- The default config now uses your Mac's built-in devices, so it works on any Mac, and shows how to use emoji in labels, with commented examples for USB and Bluetooth devices. It only applies to new installs; an existing `~/.chaudio.yml` is not changed.
 - The Alfred workflow keyword is now `chauds` (was `chaudio`), quicker to type for switching; it runs `chaudio switch`. Re-import `Change Audio.alfredworkflow`.
 - **BREAKING:** The config file is now YAML, `~/.chaudio.yml`, instead of `~/.chaudio.json`. An existing `~/.chaudio.json` is converted automatically the first time you run chaudio and no `.yml` exists; you may then delete the JSON file.
 - Running `chaudio s` in a terminal shows a cursor-driven select list; otherwise options are listed one per line with aliases in parentheses.

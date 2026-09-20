@@ -1,6 +1,6 @@
 # chaudio
 
-> Switch your Mac's microphone and speakers together with one short command, like `chaudio s phone`.
+> Switch your Mac's microphone and speakers together with one short command, like `chaudio s h`.
 
 ![chaudio](images/chaud.jpg)
 
@@ -14,7 +14,7 @@ Install into `~/opt/chaud`, add the default audio engine, and link the command o
 
 ```shell
 mkdir -p ~/opt && cd ~/opt
-composer create-project aklump/chaud:">=0.0.11 <0.1" --repository='{"type":"github","url": "https://github.com/aklump/chaud"}'
+composer create-project aklump/chaud:">=0.0.12 <0.1" --repository='{"type":"github","url": "https://github.com/aklump/chaud"}'
 cd chaud && npm install
 ln -s ~/opt/chaud/chaudio ~/bin/chaudio
 ```
@@ -26,13 +26,13 @@ $ chaudio config
 ✏️ /Users/you/.chaudio.yml
 ```
 
-List the devices on your Mac with `chaudio devices` (this needs the default engine you just installed), put their names, or better their UIDs, into the two example options in that file, then switch:
+The default options use your Mac's built-in devices, so you can switch right away. To add your own USB or Bluetooth devices, list them with `chaudio devices` (this needs the default engine you just installed) and copy their UIDs, following the commented examples in that file:
 
 ```
-$ chaudio s phone
-Phone is active (🎙 External Microphone  🔈 External Headphones)
-$ chaudio s sp
-Speakerphone is active (🎙 MacBook Pro Microphone  🔈 MacBook Pro Speakers)
+$ chaudio s h
+🎧 Headphones is active (🔈 External Headphones)
+$ chaudio s m
+🔊 MacBook is active (🎙 MacBook Pro Microphone  🔈 MacBook Pro Speakers)
 ```
 
 Run `chaudio -h` at any time to see the commands, and `chaudio <command> -h` for the details of one.
@@ -43,10 +43,10 @@ The message chaudio prints only says it *ran* the switch. To see the change for 
 
 1. Open **System Settings > Sound** and pick the **Output** tab (or **Input**, if the option you are testing sets a microphone).
 2. Click a device in the list that is *not* the one you are about to switch to, so you start from a known state.
-3. Run the switch, for example `chaudio s phone`, without closing the window.
-4. The highlighted device in the list changes to the one your option names. If it does, chaudio is working. To test the Alfred workflow, do the same but type `chauds phone` in Alfred instead.
+3. Run the switch, for example `chaudio s h`, without closing the window.
+4. The highlighted device in the list changes to the one your option names. If it does, chaudio is working. To test the Alfred workflow, do the same but type `chauds h` in Alfred instead.
 
-If the highlight does not move, run the switch again with `-v` (`chaudio s phone -v`) to see the engine and each command that was run. A device that cannot be found, such as a Bluetooth headset that is turned off, is reported on stderr and leaves your audio unchanged, so check that the device is connected and listed by `chaudio devices`.
+If the highlight does not move, run the switch again with `-v` (`chaudio s h -v`) to see the engine and each command that was run. A device that cannot be found, such as a Bluetooth headset that is turned off, is reported on stderr and leaves your audio unchanged, so check that the device is connected and listed by `chaudio devices`.
 
 ## Requirements
 
@@ -59,7 +59,7 @@ If the highlight does not move, run the switch again with `-v` (`chaudio s phone
 chaudio is installed from its GitHub repository, <https://github.com/aklump/chaud>. In a terminal, change to where you want the app to live (the examples use `~/opt`), then install it with Composer:
 
 ```shell
-composer create-project aklump/chaud:">=0.0.11 <0.1" --repository='{"type":"github","url": "https://github.com/aklump/chaud"}'
+composer create-project aklump/chaud:">=0.0.12 <0.1" --repository='{"type":"github","url": "https://github.com/aklump/chaud"}'
 ```
 
 This creates a `chaud` folder (that is the package name). Link its `chaudio` script into a directory on your `$PATH`, such as `~/bin`:
@@ -94,24 +94,56 @@ Delete the `chaud` folder you installed earlier, then repeat the installation, i
 Run `chaudio config` to print the configuration file's path, which is `~/.chaudio.yml`. If the file does not exist, chaudio creates it from the defaults shown below. Open it and edit the `options` list, which needs at least two entries.
 
 ```yaml
+# Each option is a preset. Switch to one with `chaudio s <alias>`, or run
+# `chaudio s` and pick one with the cursor keys. Run `chaudio devices` to see
+# your devices' names and UIDs.
+#
+# Start a label with an emoji to spot it quickly in the list, for example:
+#   🎧 headphones   🔊 speakers   🎤 microphone   👥 meetings   📞 calls
+# An emoji is part of the label, so `chaudio s headphones` will not find
+# "🎧 Headphones". Give every option an alias to type instead.
 options:
-  - label: Phone
-    aliases:
-      - p
-    input:
-      name: External Microphone
+  - label: '🎧 Headphones'
+    aliases: [ h, hp ]
     output:
-      name: External Headphones
+      uid: BuiltInHeadphoneOutputDevice
       level: 0.25
-    scripts:
-      - nowplaying-cli pause
-  - label: Speakerphone
-    aliases:
-      - sp
+
+  - label: '🔊 MacBook'
+    aliases: [ m, mb ]
     input:
-      name: MacBook Pro Microphone
+      uid: BuiltInMicrophoneDevice
     output:
-      name: MacBook Pro Speakers
+      uid: BuiltInSpeakerDevice
+
+  # The devices above are built into every Mac, so their UIDs are the same on
+  # yours. The examples below use made-up devices: replace the names and UIDs
+  # with your own from `chaudio devices`, then remove the leading `# `.
+  #
+  # An option may set both an input and an output, and run scripts afterward.
+  # - label: '👥 Meetings'
+  #   aliases: [ z ]
+  #   input:
+  #     name: USB Webcam
+  #     uid: 'AppleUSBAudioEngine:Acme:USB Webcam:1234567:3'
+  #   output:
+  #     name: USB Speaker
+  #     uid: 'AppleUSBAudioEngine:Acme:USB Speaker:ABC123XYZ:1'
+  #   scripts:
+  #     - nowplaying-cli pause
+  #
+  # An option may set only an input...
+  # - label: '🎤 Studio microphone'
+  #   aliases: [ mic ]
+  #   input:
+  #     uid: 'AppleUSBAudioEngine:Acme:USB audio CODEC:7654321:2'
+  #
+  # ...or only an output. Bluetooth devices are identified by their address.
+  # - label: '🎧 Bluetooth headphones'
+  #   aliases: [ bt ]
+  #   output:
+  #     name: Acme BT-100
+  #     uid: 'AA-BB-CC-DD-EE-FF:output'
 ```
 
 Each option takes these keys:
@@ -119,7 +151,7 @@ Each option takes these keys:
 - `label` (required) is the name you type, matched case-insensitively. A label with spaces, such as `Desk Setup`, is typed quoted (`chaudio s "desk setup"`) or with underscores (`chaudio s desk_setup`).
 - `aliases` are shorter names for the same option.
 - `input` and `output` each identify a device with a `name` (as in the `Name` column of `chaudio devices`, or the device's number) or with a `uid` (see below), or both (the `uid` is used, and the `name` is kept for reading and for engines that cannot use a UID), plus an optional `level` from 0 to 1. An option needs at least one of the two; leave one out to change only the other. Only the macos-audio-devices engine applies `level`, and only to the output; a `level` on `input` is accepted but ignored.
-- `scripts` are shell commands run after the switch. The default config's `nowplaying-cli pause` needs [nowplaying-cli](https://github.com/kirtan-shah/nowplaying-cli), which you install separately; remove that line if you don't use it. If a script fails, chaudio reports it and exits with status 1.
+- `scripts` are shell commands run after the switch. The `nowplaying-cli pause` in the default config's commented Meetings example needs [nowplaying-cli](https://github.com/kirtan-shah/nowplaying-cli), which you install separately; remove that line if you don't use it. If a script fails, chaudio reports it and exits with status 1.
 
 ### Identifying devices: prefer `uid`
 
@@ -165,14 +197,14 @@ chaudio config                print the configuration path, creating the file if
 chaudio cache:clear           clear the cache (alias: cc)
 ```
 
-`<label>` is a label or an alias from your configuration. The built-in `list`, `help`, and `completion` commands are available too, and command names can be abbreviated to any unique prefix (`chaudio sw phone`). Normal output goes to stdout and errors to stderr; the exit status is 0 on success and non-zero otherwise, so scripts can rely on it.
+`<label>` is a label or an alias from your configuration. The built-in `list`, `help`, and `completion` commands are available too, and command names can be abbreviated to any unique prefix (`chaudio sw h`). Normal output goes to stdout and errors to stderr; the exit status is 0 on success and non-zero otherwise, so scripts can rely on it.
 
 In a terminal, `chaudio s` lets you pick an option with the cursor keys. When output is piped, it lists one option per line with its aliases in parentheses:
 
 ```
 $ chaudio s
-🔹 Phone (p)
-🔹 Speakerphone (sp)
+🔹 🎧 Headphones (h, hp)
+🔹 🔊 MacBook (m, mb)
 ```
 
 Listing your devices marks the ones your options use. The `UID` column is what you copy into a `uid` key; a name in your config marks every device that has that name:
@@ -182,9 +214,9 @@ $ chaudio devices
 +--------+-----+----------------------------+------------------------------+-----------------+
 | Type   | ID  | Name                       | UID                          | In your options |
 +--------+-----+----------------------------+------------------------------+-----------------+
-| output | 98  | External Headphones        | BuiltInHeadphoneOutputDevice | Phone           |
-| output | 71  | MacBook Pro Speakers       | BuiltInSpeakerDevice         | Speakerphone    |
-| input  | 62  | MacBook Pro Microphone     | BuiltInMicrophoneDevice      | Speakerphone    |
+| output | 98  | External Headphones        | BuiltInHeadphoneOutputDevice | 🎧 Headphones  |
+| output | 71  | MacBook Pro Speakers       | BuiltInSpeakerDevice         | 🔊 MacBook      |
+| input  | 62  | MacBook Pro Microphone     | BuiltInMicrophoneDevice      | 🔊 MacBook      |
 | output | 126 | LG UltraFine Display Audio | AppleUSBAudioEngine:...      | -               |
 +--------+-----+----------------------------+------------------------------+-----------------+
 ```
@@ -192,14 +224,14 @@ $ chaudio devices
 If a name matches nothing, chaudio says so and suggests the nearest match:
 
 ```
-$ chaudio s spekerphone
-❌ Unknown audio configuration: spekerphone
-🤔 Did you mean "Speakerphone"? (chaudio s)
+$ chaudio s hedphones
+❌ Unknown audio configuration: hedphones
+🤔 Did you mean "🎧 Headphones"? (chaudio s)
 ```
 
 When a Bluetooth device is disconnected, switching to an option that uses it fails and leaves your audio unchanged; reconnect it and run `chaudio s <name> --refresh` to rebuild the cache and switch in one step. Not every device responds to level control, so a configured `level` may have no effect on some hardware.
 
-For a shorter command, add an alias to your shell profile, for example `alias chaud='chaudio s'` in `~/.zshrc`, then type `chaud phone`. Aliases do not apply to Alfred or scripts, which should call `chaudio` directly.
+For a shorter command, add an alias to your shell profile, for example `alias chaud='chaudio s'` in `~/.zshrc`, then type `chaud h`. Aliases do not apply to Alfred or scripts, which should call `chaudio` directly.
 
 ## Support
 
