@@ -139,7 +139,7 @@ class SwitchCommandTest extends TestCase {
     $tester = $this->getTester($this->getEngine());
     $status = $tester->execute(['label' => 'phone'], ['capture_stderr_separately' => TRUE]);
     $this->assertSame(Command::SUCCESS, $status);
-    $this->assertSame('Phone is active (🎤 Mic  🔈 Headphones)' . PHP_EOL, $tester->getDisplay());
+    $this->assertSame('Phone is active (🎙 Mic  🔈 Headphones)' . PHP_EOL, $tester->getDisplay());
     $this->assertSame('', $tester->getErrorOutput());
     $this->assertSame(['set-in Mic', 'set-out Headphones'], $this->runner->ran);
   }

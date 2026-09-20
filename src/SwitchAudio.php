@@ -14,6 +14,16 @@ use AKlump\ChangeAudio\Process\CommandRunner;
  */
 class SwitchAudio {
 
+  /**
+   * Marks the input device in the user message.
+   */
+  const INPUT_EMOJI = '🎙';
+
+  /**
+   * Marks the output device in the user message.
+   */
+  const OUTPUT_EMOJI = '🔈';
+
   private EngineInterface $engine;
 
   private CommandRunner $runner;
@@ -127,10 +137,10 @@ class SwitchAudio {
 
     $details = [];
     if ($input) {
-      $details[] = '🎤 ' . $input;
+      $details[] = self::INPUT_EMOJI . ' ' . $input;
     }
     if ($output) {
-      $details[] = '🔈 ' . $output;
+      $details[] = self::OUTPUT_EMOJI . ' ' . $output;
     }
 
     return sprintf('%s is active (%s)', $option['label'], implode('  ', $details));
