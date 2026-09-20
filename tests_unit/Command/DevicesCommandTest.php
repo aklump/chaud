@@ -7,6 +7,7 @@ use AKlump\ChangeAudio\Command\DevicesCommand;
 use AKlump\ChangeAudio\ConfigManager;
 use AKlump\ChangeAudio\Device;
 use AKlump\ChangeAudio\DeviceTypes;
+use AKlump\ChangeAudio\DeviceReference;
 use AKlump\ChangeAudio\Engine\EngineInterface;
 use AKlump\ChangeAudio\GetAudioEngine;
 use AKlump\ChangeAudio\Tests\Unit\TestingTraits\TestWithFilesTrait;
@@ -21,6 +22,7 @@ use Symfony\Component\Console\Tester\CommandTester;
  * @uses   \AKlump\ChangeAudio\Cache\CacheManager
  * @uses   \AKlump\ChangeAudio\ValidateConfiguration
  * @uses   \AKlump\ChangeAudio\Device
+ * @uses   \AKlump\ChangeAudio\DeviceReference
  */
 class DevicesCommandTest extends TestCase {
 
@@ -67,19 +69,19 @@ class DevicesCommandTest extends TestCase {
         return TRUE;
       }
 
-      public function getCommandSetOutputLevel(string $device, float $limit): string {
+      public function getCommandSetOutputLevel(DeviceReference $device, float $limit): string {
         return '';
       }
 
-      public function getCommandSetInputLevel(string $device, float $limit): string {
+      public function getCommandSetInputLevel(DeviceReference $device, float $limit): string {
         return '';
       }
 
-      public function getCommandChangeInput(string $device): string {
+      public function getCommandChangeInput(DeviceReference $device): string {
         return '';
       }
 
-      public function getCommandChangeOutput(string $device): string {
+      public function getCommandChangeOutput(DeviceReference $device): string {
         return '';
       }
 
@@ -162,6 +164,37 @@ class DevicesCommandTest extends TestCase {
     $tester = $this->getTester($this->getEngine($devices));
     $this->assertSame(Command::SUCCESS, $tester->execute([]));
     $this->assertSame(2, substr_count($tester->getDisplay(), 'Both'));
+  }
+
+  public function testUidMatchMarksExactlyOneDevice() {
+    $this->writeConfig([
+      ['label' => 'Pinned', 'output' => ['uid' => 'AppleUSBAudioEngine:2']],
+    ]);
+    $devices = [
+      (new Device())->setId(126)->setName('LG UltraFine Display Audio')->setUid('AppleUSBAudioEngine:1')->setType(DeviceTypes::OUTPUT),
+      (new Device())->setId(116)->setName('LG UltraFine Display Audio')->setUid('AppleUSBAudioEngine:2')->setType(DeviceTypes::OUTPUT),
+      (new Device())->setId(12)->setName('Other')->setUid('Other')->setType(DeviceTypes::OUTPUT),
+    ];
+    $tester = $this->getTester($this->getEngine($devices));
+    $this->assertSame(Command::SUCCESS, $tester->execute([]));
+    $display = $tester->getDisplay();
+    $this->assertSame(1, substr_count($display, 'Pinned'));
+    foreach (explode(PHP_EOL, $display) as $line) {
+      if (strpos($line, 'Pinned') !== FALSE) {
+        $this->assertStringContainsString('AppleUSBAudioEngine:2', $line);
+      }
+    }
+  }
+
+  public function testConfigWithoutDeviceOrUidDoesNotBreakTheListing() {
+    $this->writeConfig([
+      ['label' => 'Broken', 'output' => ['level' => 0.5]],
+      ['label' => 'Fine', 'output' => ['device' => 71]],
+    ]);
+    $tester = $this->getTester($this->getEngine($this->getDevices()));
+    $this->assertSame(Command::SUCCESS, $tester->execute([]));
+    $this->assertStringNotContainsString('Broken', $tester->getDisplay());
+    $this->assertStringContainsString('Fine', $tester->getDisplay());
   }
 
   public function testFailsWhenNoEngineApplies() {

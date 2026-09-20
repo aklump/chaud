@@ -5,6 +5,7 @@ namespace AKlump\ChangeAudio\Tests\Unit\Command;
 use AKlump\ChangeAudio\Cache\CacheManager;
 use AKlump\ChangeAudio\Command\SwitchCommand;
 use AKlump\ChangeAudio\ConfigManager;
+use AKlump\ChangeAudio\DeviceReference;
 use AKlump\ChangeAudio\Engine\EngineInterface;
 use AKlump\ChangeAudio\GetAudioEngine;
 use AKlump\ChangeAudio\Process\CommandRunner;
@@ -25,6 +26,7 @@ use Symfony\Component\Console\Tester\CommandTester;
  * @uses   \AKlump\ChangeAudio\SwitchAudio
  * @uses   \AKlump\ChangeAudio\SwitchResult
  * @uses   \AKlump\ChangeAudio\GetDeviceLevel
+ * @uses   \AKlump\ChangeAudio\DeviceReference
  */
 class SwitchCommandTest extends TestCase {
 
@@ -72,19 +74,19 @@ class SwitchCommandTest extends TestCase {
         return TRUE;
       }
 
-      public function getCommandSetOutputLevel(string $device, float $limit): string {
+      public function getCommandSetOutputLevel(DeviceReference $device, float $limit): string {
         return 'level-out ' . $device;
       }
 
-      public function getCommandSetInputLevel(string $device, float $limit): string {
+      public function getCommandSetInputLevel(DeviceReference $device, float $limit): string {
         return 'level-in ' . $device;
       }
 
-      public function getCommandChangeInput(string $device): string {
+      public function getCommandChangeInput(DeviceReference $device): string {
         return 'set-in ' . $device;
       }
 
-      public function getCommandChangeOutput(string $device): string {
+      public function getCommandChangeOutput(DeviceReference $device): string {
         return 'set-out ' . $device;
       }
 

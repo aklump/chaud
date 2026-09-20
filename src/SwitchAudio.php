@@ -33,11 +33,12 @@ class SwitchAudio {
     $ran = [];
 
     // Every engine command is built before any is run, so a device that cannot
-    // be found leaves the audio untouched rather than half switched.
+    // be found, or that the engine cannot address (e.g. by UID), leaves the
+    // audio untouched rather than half switched.
     try {
       $commands = $this->getEngineCommands($option);
     }
-    catch (MissingDeviceException $exception) {
+    catch (MissingDeviceException | EngineFeatureException $exception) {
       return new SwitchResult(FALSE, '', [
         '❌ ' . $exception->getMessage(),
         '⚠️ Audio remains unchanged.',
@@ -80,22 +81,27 @@ class SwitchAudio {
    *   option configures that device) and "levels", a list of commands.
    *
    * @throws \AKlump\ChangeAudio\Exception\MissingDeviceException
+   * @throws \AKlump\ChangeAudio\Exception\EngineFeatureException If the engine
+   *   cannot address a device the way the option does (levels are skipped).
    */
   private function getEngineCommands(array $option): array {
     $get_level = new GetDeviceLevel();
     $commands = ['levels' => []];
 
-    if (!empty($option['input'])) {
-      $commands['input'] = $this->engine->getCommandChangeInput($option['input']['device']);
+    $input = empty($option['input']) ? NULL : DeviceReference::fromConfig($option['input']);
+    $output = empty($option['output']) ? NULL : DeviceReference::fromConfig($option['output']);
+
+    if ($input) {
+      $commands['input'] = $this->engine->getCommandChangeInput($input);
     }
-    if (!empty($option['output'])) {
-      $commands['output'] = $this->engine->getCommandChangeOutput($option['output']['device']);
+    if ($output) {
+      $commands['output'] = $this->engine->getCommandChangeOutput($output);
     }
 
     $level = $get_level($option, DeviceTypes::INPUT);
     if (isset($level)) {
       try {
-        $commands['levels'][] = $this->engine->getCommandSetInputLevel($option['input']['device'], $level);
+        $commands['levels'][] = $this->engine->getCommandSetInputLevel($input, $level);
       }
       catch (EngineFeatureException $exception) {
         // Level feature not supported by engine.
@@ -105,7 +111,7 @@ class SwitchAudio {
     $level = $get_level($option, DeviceTypes::OUTPUT);
     if (isset($level)) {
       try {
-        $commands['levels'][] = $this->engine->getCommandSetOutputLevel($option['output']['device'], $level);
+        $commands['levels'][] = $this->engine->getCommandSetOutputLevel($output, $level);
       }
       catch (EngineFeatureException $exception) {
         // Level feature not supported by engine.
@@ -116,8 +122,8 @@ class SwitchAudio {
   }
 
   private function getUserMessage(array $option): string {
-    $input = $this->normalizeDevicePointer($option['input']['device'] ?? '');
-    $output = $this->normalizeDevicePointer($option['output']['device'] ?? '');
+    $input = $this->getDeviceName($option['input'] ?? []);
+    $output = $this->getDeviceName($option['output'] ?? []);
 
     $details = [];
     if ($input) {
@@ -131,22 +137,27 @@ class SwitchAudio {
   }
 
   /**
-   * @param string|int $pointer A device name or numeric ID.
+   * @param array $device_config An option's "input" or "output" config, or [].
    *
-   * @return string The device name; empty if a numeric ID matches no device.
+   * @return string The device name.  A numeric ID that matches no device yields
+   *   an empty string; a UID that matches no device is shown as is.
    */
-  private function normalizeDevicePointer($pointer): string {
-    if (!is_numeric($pointer)) {
-      return (string) $pointer;
+  private function getDeviceName(array $device_config): string {
+    if (!$device_config) {
+      return '';
+    }
+    $reference = DeviceReference::fromConfig($device_config);
+    if (!$reference->isUid() && !is_numeric($reference->getValue())) {
+      return (string) $reference;
     }
 
-    return array_reduce($this->engine->getAllDevices(), function (string $carry, Device $device) use ($pointer) {
-      if ($device->getId() == $pointer) {
+    foreach ($this->engine->getAllDevices() as $device) {
+      if ($reference->matches($device)) {
         return $device->getName();
       }
+    }
 
-      return $carry;
-    }, '');
+    return $reference->isUid() ? (string) $reference : '';
   }
 
 }

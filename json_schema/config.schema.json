@@ -11,6 +11,11 @@
             "integer"
           ]
         },
+        "uid": {
+          "type": "string",
+          "description": "The CoreAudio UID of the device, which survives a reboot; use instead of \"device\".",
+          "minLength": 1
+        },
         "level": {
           "type": "number",
           "description": "A value from 0 to 1 for setting the device level.",
@@ -18,8 +23,17 @@
           "maximum": 1
         }
       },
-      "required": [
-        "device"
+      "oneOf": [
+        {
+          "required": [
+            "device"
+          ]
+        },
+        {
+          "required": [
+            "uid"
+          ]
+        }
       ]
     }
   },

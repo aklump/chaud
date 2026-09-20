@@ -5,6 +5,7 @@ namespace AKlump\ChangeAudio\Command;
 
 use AKlump\ChangeAudio\ConfigManager;
 use AKlump\ChangeAudio\Device;
+use AKlump\ChangeAudio\DeviceReference;
 use AKlump\ChangeAudio\GetAudioEngine;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
@@ -29,7 +30,7 @@ class DevicesCommand extends Command {
       ->setName('devices')
       ->setAliases(['d'])
       ->setDescription('List audio devices and which of your options use them')
-      ->setHelp('Lists every available audio device with its ID and UID, and shows which of your configured options reference each device (matched by ID or name). Only the macos-audio-devices engine can list devices.');
+      ->setHelp('Lists every available audio device with its ID and UID, and shows which of your configured options reference each device (matched by UID, ID or name). Only the macos-audio-devices engine can list devices.');
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
@@ -70,18 +71,19 @@ class DevicesCommand extends Command {
    * @param array $options The config options.
    * @param \AKlump\ChangeAudio\Device $device
    *
-   * @return string[] The labels of options referencing $device by ID or name.
-   *   A name marks every device with that name, since names are not unique.
+   * @return string[] The labels of options referencing $device by ID, name or
+   *   UID.  A name marks every device with that name, since names are not
+   *   unique; a UID marks exactly one.
    */
   private function getOptionLabelsUsingDevice(array $options, Device $device): array {
     $labels = [];
     foreach ($options as $option) {
       foreach (['input', 'output'] as $direction) {
-        $value = $option[$direction]['device'] ?? NULL;
-        if ($value === NULL) {
+        // An invalid config may lack both keys; that is not this command's error.
+        if (!isset($option[$direction][DeviceReference::DEVICE]) && !isset($option[$direction][DeviceReference::UID])) {
           continue;
         }
-        if ((string) $value === (string) $device->getId() || (string) $value === $device->getName()) {
+        if (DeviceReference::fromConfig($option[$direction])->matches($device)) {
           $labels[] = (string) ($option['label'] ?? '');
           break;
         }

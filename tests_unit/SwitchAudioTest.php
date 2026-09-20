@@ -4,6 +4,7 @@ namespace AKlump\ChangeAudio\Tests\Unit;
 
 use AKlump\ChangeAudio\Device;
 use AKlump\ChangeAudio\DeviceTypes;
+use AKlump\ChangeAudio\DeviceReference;
 use AKlump\ChangeAudio\Engine\EngineInterface;
 use AKlump\ChangeAudio\Exception\EngineFeatureException;
 use AKlump\ChangeAudio\Exception\MissingDeviceException;
@@ -16,6 +17,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \AKlump\ChangeAudio\SwitchResult
  * @uses   \AKlump\ChangeAudio\GetDeviceLevel
  * @uses   \AKlump\ChangeAudio\Device
+ * @uses   \AKlump\ChangeAudio\DeviceReference
  */
 class SwitchAudioTest extends TestCase {
 
@@ -46,8 +48,8 @@ class SwitchAudioTest extends TestCase {
    *   test model an engine that can set output but not input levels (as the
    *   macos-audio-devices engine does).
    */
-  private function getEngine(array $devices = [], bool $supports_levels = TRUE, array $missing = [], bool $supports_input_levels = TRUE): EngineInterface {
-    return new class($devices, $supports_levels, $missing, $supports_input_levels) implements EngineInterface {
+  private function getEngine(array $devices = [], bool $supports_levels = TRUE, array $missing = [], bool $supports_input_levels = TRUE, array $unsupported = []): EngineInterface {
+    return new class($devices, $supports_levels, $missing, $supports_input_levels, $unsupported) implements EngineInterface {
 
       private array $devices;
 
@@ -57,7 +59,10 @@ class SwitchAudioTest extends TestCase {
 
       private array $missing;
 
-      public function __construct(array $devices, bool $supports_levels, array $missing, bool $supports_input_levels) {
+      private array $unsupported;
+
+      public function __construct(array $devices, bool $supports_levels, array $missing, bool $supports_input_levels, array $unsupported) {
+        $this->unsupported = $unsupported;
         $this->devices = $devices;
         $this->supportsLevels = $supports_levels;
         $this->missing = $missing;
@@ -68,38 +73,46 @@ class SwitchAudioTest extends TestCase {
         return TRUE;
       }
 
-      private function guard(string $device): void {
-        if (in_array($device, $this->missing, TRUE)) {
+      private function guard(DeviceReference $device): void {
+        $key = $device->isUid() ? 'uid:' . $device : (string) $device;
+        if (in_array($key, $this->unsupported, TRUE)) {
+          throw new EngineFeatureException('Engine cannot use ' . $key);
+        }
+        if (in_array($key, $this->missing, TRUE)) {
           throw new MissingDeviceException(sprintf('Could not find device "%s"', $device));
         }
       }
 
-      public function getCommandSetOutputLevel(string $device, float $limit): string {
+      private function label(DeviceReference $device): string {
+        return $device->isUid() ? 'uid:' . $device : (string) $device;
+      }
+
+      public function getCommandSetOutputLevel(DeviceReference $device, float $limit): string {
         if (!$this->supportsLevels) {
           throw new EngineFeatureException('no levels');
         }
 
-        return sprintf('level-out %s %s', $device, $limit);
+        return sprintf('level-out %s %s', $this->label($device), $limit);
       }
 
-      public function getCommandSetInputLevel(string $device, float $limit): string {
+      public function getCommandSetInputLevel(DeviceReference $device, float $limit): string {
         if (!$this->supportsLevels || !$this->supportsInputLevels) {
           throw new EngineFeatureException('no levels');
         }
 
-        return sprintf('level-in %s %s', $device, $limit);
+        return sprintf('level-in %s %s', $this->label($device), $limit);
       }
 
-      public function getCommandChangeInput(string $device): string {
+      public function getCommandChangeInput(DeviceReference $device): string {
         $this->guard($device);
 
-        return 'set-in ' . $device;
+        return 'set-in ' . $this->label($device);
       }
 
-      public function getCommandChangeOutput(string $device): string {
+      public function getCommandChangeOutput(DeviceReference $device): string {
         $this->guard($device);
 
-        return 'set-out ' . $device;
+        return 'set-out ' . $this->label($device);
       }
 
       public function getHomepage(): string {
@@ -307,6 +320,69 @@ class SwitchAudioTest extends TestCase {
     $result = $switch(['label' => 'Just scripts', 'scripts' => ['one']]);
     $this->assertTrue($result->isSuccess());
     $this->assertSame(['one'], $runner->ran);
+  }
+
+  public function testUidIsPassedToTheEngineAsAUidReference() {
+    $runner = $this->getRunner();
+    $engine = $this->getEngine();
+    $switch = new SwitchAudio($engine, $runner);
+    $result = $switch([
+      'label' => 'Desk',
+      'output' => ['uid' => 'BuiltInSpeakerDevice', 'level' => 0.5],
+    ]);
+    $this->assertTrue($result->isSuccess());
+    $this->assertSame(['set-out uid:BuiltInSpeakerDevice', 'level-out uid:BuiltInSpeakerDevice 0.5'], $runner->ran);
+  }
+
+  public function testUidIsShownByDeviceNameInTheMessage() {
+    $devices = [
+      (new Device())->setId(71)->setName('MacBook Pro Speakers')->setUid('BuiltInSpeakerDevice')->setType(DeviceTypes::OUTPUT),
+    ];
+    $switch = new SwitchAudio($this->getEngine($devices), $this->getRunner());
+    $result = $switch([
+      'label' => 'Desk',
+      'output' => ['uid' => 'BuiltInSpeakerDevice'],
+    ]);
+    $this->assertSame('Desk is active (🔈 MacBook Pro Speakers)', $result->getMessage());
+  }
+
+  public function testUidWithNoKnownDeviceIsShownAsIs() {
+    $switch = new SwitchAudio($this->getEngine(), $this->getRunner());
+    $result = $switch([
+      'label' => 'Desk',
+      'output' => ['uid' => 'SomeUid'],
+    ]);
+    $this->assertSame('Desk is active (🔈 SomeUid)', $result->getMessage());
+  }
+
+  public function testMissingUidRunsNothingAndReportsIt() {
+    $runner = $this->getRunner();
+    $switch = new SwitchAudio($this->getEngine([], TRUE, ['uid:Gone']), $runner);
+    $result = $switch([
+      'label' => 'Desk',
+      'input' => ['device' => 'Mic'],
+      'output' => ['uid' => 'Gone'],
+    ]);
+    $this->assertFalse($result->isSuccess());
+    $this->assertSame(1, $result->getExitCode());
+    $this->assertSame([], $runner->ran);
+    $errors = $result->getErrors();
+    $this->assertSame('⚠️ Audio remains unchanged.', end($errors));
+  }
+
+  public function testEngineThatCannotUseAUidReportsItAndRunsNothing() {
+    $runner = $this->getRunner();
+    $switch = new SwitchAudio($this->getEngine([], TRUE, [], TRUE, ['uid:Nope']), $runner);
+    $result = $switch([
+      'label' => 'Desk',
+      'input' => ['device' => 'Mic'],
+      'output' => ['uid' => 'Nope'],
+      'scripts' => ['never'],
+    ]);
+    $this->assertFalse($result->isSuccess());
+    $this->assertSame(1, $result->getExitCode());
+    $this->assertSame(['❌ Engine cannot use uid:Nope', '⚠️ Audio remains unchanged.'], $result->getErrors());
+    $this->assertSame([], $runner->ran);
   }
 
 }
