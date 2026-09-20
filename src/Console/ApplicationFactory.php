@@ -8,8 +8,10 @@ use AKlump\ChangeAudio\Cache\CacheManager;
 use AKlump\ChangeAudio\Command\CacheClearCommand;
 use AKlump\ChangeAudio\Command\ConfigCommand;
 use AKlump\ChangeAudio\Command\DevicesCommand;
+use AKlump\ChangeAudio\Command\SwitchCommand;
 use AKlump\ChangeAudio\ConfigManager;
 use AKlump\ChangeAudio\GetAudioEngine;
+use AKlump\ChangeAudio\Process\ShellCommandRunner;
 use Symfony\Component\Console\Application as SymfonyApplication;
 use Symfony\Component\Console\Command\Command;
 
@@ -20,6 +22,7 @@ class ApplicationFactory {
     $cache_manager = new CacheManager();
     $config_manager = new ConfigManager($cache_manager);
 
+    static::registerCommand($application, new SwitchCommand($config_manager, new GetAudioEngine(), new ShellCommandRunner(), $cache_manager));
     static::registerCommand($application, new ConfigCommand($config_manager));
     static::registerCommand($application, new DevicesCommand($config_manager, new GetAudioEngine()));
     static::registerCommand($application, new CacheClearCommand($cache_manager));

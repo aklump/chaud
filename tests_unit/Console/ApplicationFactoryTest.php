@@ -15,6 +15,8 @@ use Symfony\Component\Console\Tester\ApplicationTester;
  * @uses   \AKlump\ChangeAudio\Cache\CacheManager
  * @uses   \AKlump\ChangeAudio\ConfigManager
  * @uses   \AKlump\ChangeAudio\Command\ConfigCommand
+ * @uses   \AKlump\ChangeAudio\Command\SwitchCommand
+ * @uses   \AKlump\ChangeAudio\Process\ShellCommandRunner
  * @uses   \AKlump\ChangeAudio\Command\DevicesCommand
  * @uses   \AKlump\ChangeAudio\Command\CacheClearCommand
  * @uses   \AKlump\ChangeAudio\GetAudioEngine
@@ -49,6 +51,8 @@ class ApplicationFactoryTest extends TestCase {
     $this->assertInstanceOf(Application::class, $application);
     $this->assertSame(App::NAME, $application->getName());
     $this->assertSame(App::VERSION, $application->getVersion());
+    $this->assertTrue($application->has('switch'));
+    $this->assertTrue($application->has('s'));
     $this->assertTrue($application->has('config'));
     $this->assertTrue($application->has('devices'));
     $this->assertTrue($application->has('cache:clear'));
