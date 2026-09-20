@@ -35,6 +35,7 @@ class CacheManagerTest extends TestCase {
   }
 
   public function testGetPathThrowsWhenEnvIsEmpty() {
+    putenv('CACHE_PATH');
     $this->expectException(RuntimeException::class);
     (new CacheManager())->getPath();
   }

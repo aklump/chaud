@@ -45,6 +45,20 @@ class ConfigManagerTest extends TestCase {
     $this->assertSame($a, $b);
   }
 
+  public function testGetValidationErrorsIsEmptyForTheDefaultConfig() {
+    $manager = new ConfigManager(new CacheManager(), $this->userHome, $this->defaultConfig);
+    $manager->get();
+    $this->assertSame([], $manager->getValidationErrors());
+  }
+
+  public function testGetValidationErrorsDescribesAnInvalidConfigAndSkipsTheCache() {
+    file_put_contents($this->userHome . '/' . ConfigManager::CONFIG_BASENAME, json_encode(['options' => []]));
+    $manager = new ConfigManager(new CacheManager(), $this->userHome, $this->defaultConfig);
+    $manager->get();
+    $this->assertNotEmpty($manager->getValidationErrors());
+    $this->assertFileDoesNotExist($this->cacheDir . '/config.php', 'Assert an invalid config is not cached.');
+  }
+
   public function testNonExistentUserHomeThrows() {
     $user_home = $this->getTestFileFilepath('user/');
     $this->deleteTestFile($user_home);
