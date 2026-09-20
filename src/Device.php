@@ -9,6 +9,8 @@ class Device {
   private int $id;
   private string $type;
 
+  private string $uid = '';
+
   public function getType(): string {
     return $this->type;
   }
@@ -42,6 +44,19 @@ class Device {
 
   public function setId(int $id): self {
     $this->id = $id;
+
+    return $this;
+  }
+
+  /**
+   * @return string The CoreAudio UID, which survives reboot; empty if unknown.
+   */
+  public function getUid(): string {
+    return $this->uid;
+  }
+
+  public function setUid(string $uid): self {
+    $this->uid = $uid;
 
     return $this;
   }

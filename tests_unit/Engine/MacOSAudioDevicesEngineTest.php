@@ -106,7 +106,7 @@ class MacOSAudioDevicesEngineTest extends TestCase {
 
   public function testGetAllDevicesReturnsDevicesSortedByName() {
     $json = json_encode([
-      ['id' => 73, 'name' => 'MacBook Pro Speakers', 'isOutput' => TRUE],
+      ['id' => 73, 'name' => 'MacBook Pro Speakers', 'isOutput' => TRUE, 'uid' => 'BuiltInSpeakerDevice'],
       ['id' => 51, 'name' => 'External Microphone', 'isOutput' => FALSE],
     ]);
     $engine = $this->getEngineWithScript($this->writeListScript($json));
@@ -119,10 +119,12 @@ class MacOSAudioDevicesEngineTest extends TestCase {
     $this->assertSame('External Microphone', $first->getName());
     $this->assertSame(51, $first->getId());
     $this->assertSame(DeviceTypes::INPUT, $first->getType());
+    $this->assertSame('', $first->getUid(), 'Assert a missing uid becomes an empty string.');
 
     $last = end($devices);
     $this->assertSame('MacBook Pro Speakers', $last->getName());
     $this->assertSame(DeviceTypes::OUTPUT, $last->getType());
+    $this->assertSame('BuiltInSpeakerDevice', $last->getUid());
 
     $this->assertSame($devices, $engine->getAllDevices(), 'Assert the second call is served from memory.');
   }

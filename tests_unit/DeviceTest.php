@@ -16,6 +16,7 @@ class DeviceTest extends TestCase {
     $this->assertSame($device, $device->setName('External Microphone'));
     $this->assertSame($device, $device->setId(47));
     $this->assertSame($device, $device->setType(DeviceTypes::INPUT));
+    $this->assertSame($device, $device->setUid('BuiltInMicrophoneDevice'));
   }
 
   public function testGettersReturnWhatWasSet() {
@@ -26,6 +27,13 @@ class DeviceTest extends TestCase {
     $this->assertSame('External Headphones', $device->getName());
     $this->assertSame(52, $device->getId());
     $this->assertSame(DeviceTypes::OUTPUT, $device->getType());
+  }
+
+  public function testUidAccessor() {
+    $device = new Device();
+    $this->assertSame('', $device->getUid());
+    $device->setUid('BuiltInSpeakerDevice');
+    $this->assertSame('BuiltInSpeakerDevice', $device->getUid());
   }
 
   public function testToStringMatchesTheFormatUsedByEchoAll() {

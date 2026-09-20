@@ -117,6 +117,7 @@ class MacOSAudioDevicesEngine implements EngineInterface {
 
         return (new Device())->setId($device['id'])
           ->setName($device['name'])
+          ->setUid($device['uid'] ?? '')
           ->setType($type);
       }, $this->allDevices);
 

@@ -5,8 +5,11 @@ namespace AKlump\ChangeAudio\Console;
 
 use AKlump\ChangeAudio\App;
 use AKlump\ChangeAudio\Cache\CacheManager;
+use AKlump\ChangeAudio\Command\CacheClearCommand;
 use AKlump\ChangeAudio\Command\ConfigCommand;
+use AKlump\ChangeAudio\Command\DevicesCommand;
 use AKlump\ChangeAudio\ConfigManager;
+use AKlump\ChangeAudio\GetAudioEngine;
 use Symfony\Component\Console\Application as SymfonyApplication;
 use Symfony\Component\Console\Command\Command;
 
@@ -14,9 +17,12 @@ class ApplicationFactory {
 
   public static function create(): Application {
     $application = new Application(App::NAME, App::VERSION);
-    $config_manager = new ConfigManager(new CacheManager());
+    $cache_manager = new CacheManager();
+    $config_manager = new ConfigManager($cache_manager);
 
     static::registerCommand($application, new ConfigCommand($config_manager));
+    static::registerCommand($application, new DevicesCommand($config_manager, new GetAudioEngine()));
+    static::registerCommand($application, new CacheClearCommand($cache_manager));
 
     return $application;
   }

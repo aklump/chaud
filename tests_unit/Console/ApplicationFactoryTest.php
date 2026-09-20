@@ -15,6 +15,9 @@ use Symfony\Component\Console\Tester\ApplicationTester;
  * @uses   \AKlump\ChangeAudio\Cache\CacheManager
  * @uses   \AKlump\ChangeAudio\ConfigManager
  * @uses   \AKlump\ChangeAudio\Command\ConfigCommand
+ * @uses   \AKlump\ChangeAudio\Command\DevicesCommand
+ * @uses   \AKlump\ChangeAudio\Command\CacheClearCommand
+ * @uses   \AKlump\ChangeAudio\GetAudioEngine
  */
 class ApplicationFactoryTest extends TestCase {
 
@@ -47,6 +50,21 @@ class ApplicationFactoryTest extends TestCase {
     $this->assertSame(App::NAME, $application->getName());
     $this->assertSame(App::VERSION, $application->getVersion());
     $this->assertTrue($application->has('config'));
+    $this->assertTrue($application->has('devices'));
+    $this->assertTrue($application->has('cache:clear'));
+  }
+
+  public function testDevicesAliasHasTheSameHelpAsDevices() {
+    $application = ApplicationFactory::create();
+    $this->assertSame($application->find('devices'), $application->find('d'));
+    $outputs = [];
+    foreach (['devices', 'd'] as $name) {
+      $tester = $this->getTester();
+      $this->assertSame(0, $tester->run(['command' => $name, '-h' => TRUE]));
+      $outputs[] = $tester->getDisplay();
+    }
+    $this->assertSame($outputs[0], $outputs[1]);
+    $this->assertStringContainsString('List audio devices', $outputs[0]);
   }
 
   public function testBareHelpFlagsListTheCommands() {
