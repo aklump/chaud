@@ -3,41 +3,51 @@
 
 namespace AKlump\ChangeAudio\Engine;
 
+use AKlump\ChangeAudio\DeviceReference;
+
 interface EngineInterface {
 
   public function applies(): bool;
 
   /**
-   * @param string $device Can be a device name or numeric identifier.
+   * @param \AKlump\ChangeAudio\DeviceReference $device A device name, numeric
+   *   identifier or UID.
    * @param float $limit A value from 0 to 1.
    *
    * @return string
    *
    * @throws \AKlump\ChangeAudio\Exception\EngineFeatureException;
+   * @throws \AKlump\ChangeAudio\Exception\MissingDeviceException;
    */
-  public function getCommandSetOutputLevel(string $device, float $limit): string;
+  public function getCommandSetOutputLevel(DeviceReference $device, float $limit): string;
 
   /**
-   * @param string $device Can be a device name or numeric identifier.
+   * @param \AKlump\ChangeAudio\DeviceReference $device A device name, numeric
+   *   identifier or UID.
    * @param float $limit A value from 0 to 1.
    *
    * @throws \AKlump\ChangeAudio\Exception\EngineFeatureException;
+   * @throws \AKlump\ChangeAudio\Exception\MissingDeviceException;
    */
-  public function getCommandSetInputLevel(string $device, float $limit): string;
+  public function getCommandSetInputLevel(DeviceReference $device, float $limit): string;
 
   /**
-   * @param string $device Can be a device name or numeric identifier.
+   * @param \AKlump\ChangeAudio\DeviceReference $device A device name, numeric
+   *   identifier or UID.
    *
    * @throws \AKlump\ChangeAudio\Exception\EngineFeatureException;
+   * @throws \AKlump\ChangeAudio\Exception\MissingDeviceException;
    */
-  public function getCommandChangeInput(string $device): string;
+  public function getCommandChangeInput(DeviceReference $device): string;
 
   /**
-   * @param string $device Can be a device name or numeric identifier.
+   * @param \AKlump\ChangeAudio\DeviceReference $device A device name, numeric
+   *   identifier or UID.
    *
    * @throws \AKlump\ChangeAudio\Exception\EngineFeatureException;
+   * @throws \AKlump\ChangeAudio\Exception\MissingDeviceException;
    */
-  public function getCommandChangeOutput(string $device): string;
+  public function getCommandChangeOutput(DeviceReference $device): string;
 
   /**
    * @return string The URL where this engine can be downloaded.

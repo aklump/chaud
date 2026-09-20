@@ -11,7 +11,9 @@ use PHPUnit\Framework\TestCase;
 class AppTest extends TestCase {
 
   public function testBinMatchesTheExecutableInTheProjectRoot() {
-    $this->assertSame('chaud', App::BIN);
+    $this->assertSame('chaudio', App::BIN);
     $this->assertFileExists(__DIR__ . '/../' . App::BIN);
+    $this->assertFileIsReadable(__DIR__ . '/../' . App::BIN);
+    $this->assertTrue(is_executable(__DIR__ . '/../' . App::BIN));
   }
 }

@@ -20,6 +20,8 @@ class ConfigManagerTest extends TestCase {
 
   private string $userHome;
 
+  private string $defaultConfig;
+
   public function testMissingDefaultConfigThrows() {
     $bogus = $this->getTestFileFilepath('bogus.json');
     $this->assertFileDoesNotExist($bogus);

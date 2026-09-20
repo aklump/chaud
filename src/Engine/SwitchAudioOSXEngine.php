@@ -3,6 +3,7 @@
 
 namespace AKlump\ChangeAudio\Engine;
 
+use AKlump\ChangeAudio\DeviceReference;
 use AKlump\ChangeAudio\Exception\EngineFeatureException;
 
 class SwitchAudioOSXEngine implements EngineInterface {
@@ -18,23 +19,29 @@ class SwitchAudioOSXEngine implements EngineInterface {
     return is_executable($this->script);
   }
 
-  public function getCommandChangeInput(string $device): string {
-    return sprintf('%s -s "%s" -t input', $this->script, $device);
+  public function getCommandChangeInput(DeviceReference $device): string {
+    return $this->getCommandChange($device, 'input');
   }
 
-  public function getCommandChangeOutput(string $device): string {
-    return sprintf('%s -s "%s" -t output', $this->script, $device);
+  public function getCommandChangeOutput(DeviceReference $device): string {
+    return $this->getCommandChange($device, 'output');
+  }
+
+  private function getCommandChange(DeviceReference $device, string $type): string {
+    // SwitchAudioSource matches -u as a substring of the UID, so a short or
+    // partial "uid" in config may select a different device than intended.
+    return sprintf('%s %s "%s" -t %s', $this->script, $device->isUid() ? '-u' : '-s', $device, $type);
   }
 
   public function getHomepage(): string {
     return 'https://github.com/deweller/switchaudio-osx';
   }
 
-  public function getCommandSetOutputLevel(string $device, float $volume): string {
+  public function getCommandSetOutputLevel(DeviceReference $device, float $volume): string {
     throw new EngineFeatureException("SwitchAudioOSXEngine does not support output levels.");
   }
 
-  public function getCommandSetInputLevel(string $device, float $volume): string {
+  public function getCommandSetInputLevel(DeviceReference $device, float $volume): string {
     throw new EngineFeatureException("SwitchAudioOSXEngine does not support input levels.");
   }
 

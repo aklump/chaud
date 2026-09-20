@@ -56,6 +56,44 @@ class ValidateConfigurationTest extends TestCase {
         ],
       ],
     ];
+    $tests['device block with both device and uid'] = [
+      [
+        'options' => [
+          [
+            'label' => 'Phone',
+            'output' => ['device' => 'Headphones', 'uid' => 'BuiltInHeadphoneOutputDevice'],
+          ],
+          $second_option,
+        ],
+      ],
+    ];
+    $tests['device block with neither device nor uid'] = [
+      [
+        'options' => [
+          [
+            'label' => 'Phone',
+            'output' => ['level' => 0.5],
+          ],
+          $second_option,
+        ],
+      ],
+    ];
+    $tests['empty uid'] = [
+      [
+        'options' => [
+          ['label' => 'Phone', 'output' => ['uid' => '']],
+          $second_option,
+        ],
+      ],
+    ];
+    $tests['numeric uid'] = [
+      [
+        'options' => [
+          ['label' => 'Phone', 'output' => ['uid' => 73]],
+          $second_option,
+        ],
+      ],
+    ];
     $tests['empty label'] = [
       [
         'options' => [
@@ -88,6 +126,23 @@ class ValidateConfigurationTest extends TestCase {
         [
           'label' => 'Speakerphone',
           'output' => ['device' => 'MacBook Pro Speakers', 'level' => 1],
+        ],
+      ],
+    ];
+    $this->assertSame([], (new ValidateConfiguration())($config));
+  }
+
+  public function testUidIsValidInPlaceOfDevice() {
+    $config = [
+      'options' => [
+        [
+          'label' => 'Phone',
+          'input' => ['uid' => 'BuiltInMicrophoneDevice'],
+          'output' => ['uid' => 'BuiltInHeadphoneOutputDevice', 'level' => 0.5],
+        ],
+        [
+          'label' => 'Speakerphone',
+          'output' => ['device' => 'MacBook Pro Speakers'],
         ],
       ],
     ];

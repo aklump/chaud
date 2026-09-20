@@ -2,6 +2,7 @@
 
 namespace AKlump\ChangeAudio\Tests\Unit\Engine;
 
+use AKlump\ChangeAudio\DeviceReference;
 use AKlump\ChangeAudio\Engine\SwitchAudioCommandEngine;
 use AKlump\ChangeAudio\Exception\EngineFeatureException;
 use AKlump\ChangeAudio\Tests\Unit\TestingTraits\TestWithFilesTrait;
@@ -10,6 +11,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * @covers \AKlump\ChangeAudio\Engine\SwitchAudioCommandEngine
  * @uses   \AKlump\ChangeAudio\Exception\EngineFeatureException
+ * @uses   \AKlump\ChangeAudio\DeviceReference
  */
 class SwitchAudioCommandEngineTest extends TestCase {
 
@@ -38,14 +40,30 @@ class SwitchAudioCommandEngineTest extends TestCase {
     $script = $this->installScript(0755);
     $engine = new SwitchAudioCommandEngine();
     $engine->applies();
-    $this->assertSame(sprintf("%s -i 'External Microphone'", $script), $engine->getCommandChangeInput('External Microphone'));
+    $this->assertSame(sprintf("%s -i 'External Microphone'", $script), $engine->getCommandChangeInput(new DeviceReference(DeviceReference::DEVICE, 'External Microphone')));
   }
 
   public function testGetCommandChangeOutputUsesTheScriptAndOutputFlag() {
     $script = $this->installScript(0755);
     $engine = new SwitchAudioCommandEngine();
     $engine->applies();
-    $this->assertSame(sprintf("%s -o 'MacBook Pro Speakers'", $script), $engine->getCommandChangeOutput('MacBook Pro Speakers'));
+    $this->assertSame(sprintf("%s -o 'MacBook Pro Speakers'", $script), $engine->getCommandChangeOutput(new DeviceReference(DeviceReference::DEVICE, 'MacBook Pro Speakers')));
+  }
+
+  public function testUidThrowsBecauseItsSupportCannotBeVerified() {
+    $this->installScript(0755);
+    $engine = new SwitchAudioCommandEngine();
+    $engine->applies();
+    $uid = new DeviceReference(DeviceReference::UID, 'BuiltInSpeakerDevice');
+    foreach (['getCommandChangeInput', 'getCommandChangeOutput'] as $method) {
+      try {
+        $engine->$method($uid);
+        $this->fail("Expected an EngineFeatureException from $method.");
+      }
+      catch (EngineFeatureException $exception) {
+        $this->assertStringContainsString('uid', $exception->getMessage());
+      }
+    }
   }
 
   public function testGetHomepage() {
@@ -54,12 +72,12 @@ class SwitchAudioCommandEngineTest extends TestCase {
 
   public function testGetCommandSetOutputLevelThrows() {
     $this->expectException(EngineFeatureException::class);
-    (new SwitchAudioCommandEngine())->getCommandSetOutputLevel('MacBook Pro Speakers', 0.25);
+    (new SwitchAudioCommandEngine())->getCommandSetOutputLevel(new DeviceReference(DeviceReference::DEVICE, 'MacBook Pro Speakers'), 0.25);
   }
 
   public function testGetCommandSetInputLevelThrows() {
     $this->expectException(EngineFeatureException::class);
-    (new SwitchAudioCommandEngine())->getCommandSetInputLevel('External Microphone', 0.25);
+    (new SwitchAudioCommandEngine())->getCommandSetInputLevel(new DeviceReference(DeviceReference::DEVICE, 'External Microphone'), 0.25);
   }
 
   public function testGetAllDevicesIsNotImplemented() {
