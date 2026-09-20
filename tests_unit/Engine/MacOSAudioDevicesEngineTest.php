@@ -99,7 +99,6 @@ class MacOSAudioDevicesEngineTest extends TestCase {
   public function testUnknownDeviceTypeThrows() {
     $engine = $this->getEngineWithScript('/usr/bin/true');
     $get_device_by_name = (new ReflectionObject($engine))->getMethod('getDeviceByName');
-    $get_device_by_name->setAccessible(TRUE);
     $this->expectException(InvalidArgumentException::class);
     $this->expectExceptionMessage('Unknown device type: bogus');
     $get_device_by_name->invoke($engine, 'bogus', 'External Microphone');
@@ -138,7 +137,6 @@ class MacOSAudioDevicesEngineTest extends TestCase {
     $engine = new MacOSAudioDevicesEngine(new CacheManager());
     $engine->applies();
     $property = (new ReflectionObject($engine))->getProperty('script');
-    $property->setAccessible(TRUE);
     $property->setValue($engine, $script);
 
     return $engine;

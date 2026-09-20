@@ -3,6 +3,7 @@
 namespace AKlump\ChangeAudio\Tests\Unit\Cache;
 
 use AKlump\ChangeAudio\Cache\CreateChangeFunctions;
+use AKlump\ChangeAudio\ConfigManager;
 use AKlump\ChangeAudio\Device;
 use AKlump\ChangeAudio\DeviceTypes;
 use AKlump\ChangeAudio\Engine\EngineInterface;
@@ -173,7 +174,7 @@ class CreateChangeFunctionsTest extends TestCase {
    * Write $options as the user config, generate the functions, return the bash.
    */
   private function createFunctions(array $options, bool $supports_output_level = TRUE): string {
-    file_put_contents($this->userHome . '/.chaud.json', json_encode(['options' => $options]));
+    file_put_contents($this->userHome . '/' . ConfigManager::CONFIG_BASENAME, json_encode(['options' => $options]));
     (new CreateChangeFunctions($this->getEngine($supports_output_level)))($this->outputPath);
     $this->assertFileExists($this->outputPath);
 
