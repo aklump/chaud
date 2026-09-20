@@ -71,4 +71,17 @@ class CacheManagerTest extends TestCase {
       }
     }
   }
+
+  public function testFlushRemovesFilesAndKeepsDirectories() {
+    $cache_dir = $this->getTestFileFilepath('cache/', TRUE);
+    $this->deleteTestFile($cache_dir);
+    $cache_dir = $this->getTestFileFilepath('cache/', TRUE);
+    mkdir($cache_dir . '/subdir');
+    file_put_contents($cache_dir . '/config.php', '<?php return [];');
+    putenv('CACHE_PATH=' . $cache_dir);
+    $this->assertSame($cache_dir, (new CacheManager())->flush());
+    $this->assertFileDoesNotExist($cache_dir . '/config.php');
+    $this->assertDirectoryExists($cache_dir . '/subdir');
+  }
+
 }

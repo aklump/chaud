@@ -220,7 +220,99 @@ class SwitchCommandTest extends TestCase {
     $this->assertSame('switch', $command->getName());
     $this->assertSame(['s'], $command->getAliases());
     $this->assertNotEmpty($command->getDescription());
-    $this->assertTrue($command->getDefinition()->getArgument('label')->isRequired());
+    $this->assertFalse($command->getDefinition()->getArgument('label')->isRequired());
+    $this->assertTrue($command->getDefinition()->hasOption('refresh'));
+  }
+
+  public function testNoLabelListsOptionsAndAliasesOnStdout() {
+    $tester = $this->getTester($this->getEngine());
+    $status = $tester->execute([], ['capture_stderr_separately' => TRUE]);
+    $this->assertSame(Command::SUCCESS, $status);
+    $this->assertSame(implode(PHP_EOL, [
+      '🔹 Phone',
+      '     p',
+      '🔹 Speakerphone',
+      '     sp',
+    ]) . PHP_EOL, $tester->getDisplay());
+    $this->assertSame('', $tester->getErrorOutput());
+    $this->assertSame([], $this->runner->ran, 'Listing must not change audio.');
+  }
+
+  public function testNoLabelListsOptionsWithoutAnEngine() {
+    $tester = $this->getTester(NULL);
+    $this->assertSame(Command::SUCCESS, $tester->execute([]));
+    $this->assertStringContainsString('🔹 Phone', $tester->getDisplay());
+  }
+
+  public function testNoLabelWithInvalidConfigFails() {
+    $this->writeConfig([['label' => 'Only one']]);
+    $tester = $this->getTester($this->getEngine());
+    $status = $tester->execute([], ['capture_stderr_separately' => TRUE]);
+    $this->assertSame(Command::FAILURE, $status);
+    $this->assertStringContainsString('❌ Invalid configuration:', $tester->getErrorOutput());
+  }
+
+  public function testConfigIsCachedWithoutRefresh() {
+    $tester = $this->getTester($this->getEngine());
+    $this->assertSame(Command::SUCCESS, $tester->execute([]));
+    $this->writeConfig($this->getRenamedOptions());
+
+    $tester = $this->getTester($this->getEngine());
+    $tester->execute([]);
+    $this->assertStringContainsString('🔹 Phone', $tester->getDisplay());
+    $this->assertStringNotContainsString('Renamed', $tester->getDisplay());
+  }
+
+  public function testRefreshFlushesTheCacheThenSwitches() {
+    $tester = $this->getTester($this->getEngine());
+    $tester->execute([]);
+    $cache_dir = getenv('CACHE_PATH');
+    file_put_contents($cache_dir . '/MacOSAudioDevicesEngine.device_index_include.input.php', '<?php return [];');
+    $this->assertFileExists($cache_dir . '/config.php');
+
+    // The edit is invisible until the cache is flushed.
+    $this->writeConfig($this->getRenamedOptions());
+    $tester = $this->getTester($this->getEngine());
+    $status = $tester->execute(['label' => 'renamed', '--refresh' => TRUE], ['capture_stderr_separately' => TRUE]);
+    $this->assertSame(Command::SUCCESS, $status);
+    $this->assertSame('Renamed is active (🔈 Speakers)' . PHP_EOL, $tester->getDisplay());
+    $this->assertSame(['set-out Speakers'], $this->runner->ran);
+    $this->assertFileDoesNotExist($cache_dir . '/MacOSAudioDevicesEngine.device_index_include.input.php');
+    $this->assertDirectoryExists($cache_dir);
+  }
+
+  public function testRefreshWithoutLabelFlushesThenLists() {
+    $tester = $this->getTester($this->getEngine());
+    $tester->execute([]);
+    $this->writeConfig($this->getRenamedOptions());
+
+    $tester = $this->getTester($this->getEngine());
+    $this->assertSame(Command::SUCCESS, $tester->execute(['--refresh' => TRUE]));
+    $this->assertStringContainsString('🔹 Renamed', $tester->getDisplay());
+    $this->assertSame([], $this->runner->ran);
+  }
+
+  public function testRefreshIsMentionedInVerboseOutput() {
+    $tester = $this->getTester($this->getEngine());
+    $tester->execute(['label' => 'Phone', '--refresh' => TRUE], ['verbosity' => OutputInterface::VERBOSITY_VERBOSE]);
+    $this->assertStringContainsString('🪲 Flushed ' . getenv('CACHE_PATH'), $tester->getDisplay());
+  }
+
+  public function testLabelIsMatchedByItsNormalizedForm() {
+    $this->writeConfig([
+      ['label' => 'Desk setup', 'output' => ['device' => 'Speakers']],
+      ['label' => 'Other', 'output' => ['device' => 'Headphones']],
+    ]);
+    $tester = $this->getTester($this->getEngine());
+    $this->assertSame(Command::SUCCESS, $tester->execute(['label' => 'desk-setup']));
+    $this->assertStringContainsString('Desk setup is active', $tester->getDisplay());
+  }
+
+  private function getRenamedOptions(): array {
+    return [
+      ['label' => 'Renamed', 'output' => ['device' => 'Speakers']],
+      ['label' => 'Other', 'output' => ['device' => 'Headphones']],
+    ];
   }
 
 }

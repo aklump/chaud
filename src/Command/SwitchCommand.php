@@ -14,6 +14,7 @@ use AKlump\ChangeAudio\SwitchAudio;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -40,12 +41,18 @@ class SwitchCommand extends Command {
       ->setName('switch')
       ->setAliases(['s'])
       ->setDescription('Switch audio to a configured option')
-      ->addArgument('label', InputArgument::REQUIRED, 'The label or alias of an option in your configuration')
-      ->setHelp('Switches the audio input and output to the configuration option with the given label or alias (letter case is ignored), then runs that option\'s scripts. Add -v to see the engine, cache directory and each command that is run.');
+      ->addArgument('label', InputArgument::OPTIONAL, 'The label or alias of an option in your configuration; omit to list your options')
+      ->addOption('refresh', NULL, InputOption::VALUE_NONE, 'Flush the cache first, so the configuration and devices are read again')
+      ->setHelp('Switches the audio input and output to the configuration option with the given label or alias (letter case is ignored), then runs that option\'s scripts. With no label, lists your configured options and their aliases. Use --refresh after editing your configuration or connecting a new device. Add -v to see the engine, cache directory and each command that is run.');
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $error_output = $output instanceof ConsoleOutputInterface ? $output->getErrorOutput() : $output;
+
+    if ($input->getOption('refresh')) {
+      $directory = $this->cache->flush();
+      $output->writeln('🪲 Flushed ' . $directory, OutputInterface::OUTPUT_RAW | OutputInterface::VERBOSITY_VERBOSE);
+    }
 
     $config = $this->config->get();
     if ($this->config->getValidationErrors()) {
@@ -57,8 +64,15 @@ class SwitchCommand extends Command {
       return Command::FAILURE;
     }
 
+    $label = $input->getArgument('label');
+    if ($label === NULL) {
+      $this->listOptions($output, $config['options'] ?? []);
+
+      return Command::SUCCESS;
+    }
+
     $resolver = new OptionResolver($config['options'] ?? []);
-    $label = (string) $input->getArgument('label');
+    $label = (string) $label;
     $option = $resolver->resolve($label);
     if (!$option) {
       $error_output->writeln('❌ Unknown audio configuration: ' . $label, OutputInterface::OUTPUT_RAW);
@@ -93,6 +107,19 @@ class SwitchCommand extends Command {
     }
 
     return $result->getExitCode();
+  }
+
+  /**
+   * Print each option's label and, indented beneath it, its aliases.
+   */
+  private function listOptions(OutputInterface $output, array $options): void {
+    $indent = '     ';
+    foreach ($options as $option) {
+      $output->writeln('🔹 ' . $option['label'], OutputInterface::OUTPUT_RAW);
+      foreach (($option['aliases'] ?? []) as $alias) {
+        $output->writeln($indent . $alias, OutputInterface::OUTPUT_RAW);
+      }
+    }
   }
 
 }

@@ -19,6 +19,16 @@ class OptionResolver {
   private array $byLabel = [];
 
   /**
+   * @var array[] Options keyed by normalized alias.
+   */
+  private array $byNormalizedAlias = [];
+
+  /**
+   * @var array[] Options keyed by normalized label.
+   */
+  private array $byNormalizedLabel = [];
+
+  /**
    * @var string[]
    */
   private array $names = [];
@@ -33,10 +43,13 @@ class OptionResolver {
         continue;
       }
       $this->byLabel[mb_strtolower($label)] = $option;
+      $this->byNormalizedLabel[$this->normalize($label)] = $option;
       $this->names[] = $label;
       foreach (($option['aliases'] ?? []) as $alias) {
-        $this->byAlias[mb_strtolower((string) $alias)] = $option;
-        $this->names[] = (string) $alias;
+        $alias = (string) $alias;
+        $this->byAlias[mb_strtolower($alias)] = $option;
+        $this->byNormalizedAlias[$this->normalize($alias)] = $option;
+        $this->names[] = $alias;
       }
     }
   }
@@ -45,12 +58,19 @@ class OptionResolver {
    * @param string $label A label or alias, in any letter case.
    *
    * @return array|null The option, or NULL if nothing matches.  An alias wins
-   *   over a label when both match.
+   *   over a label when both match, and a case-insensitive exact match wins
+   *   over the normalized fallback (so "desk-setup" or "desk_setup" finds
+   *   "Desk setup").
    */
   public function resolve(string $label): ?array {
     $key = mb_strtolower($label);
+    $normalized = $this->normalize($label);
 
-    return $this->byAlias[$key] ?? $this->byLabel[$key] ?? NULL;
+    return $this->byAlias[$key]
+      ?? $this->byLabel[$key]
+      ?? $this->byNormalizedAlias[$normalized]
+      ?? $this->byNormalizedLabel[$normalized]
+      ?? NULL;
   }
 
   /**
@@ -58,6 +78,16 @@ class OptionResolver {
    */
   public function getNames(): array {
     return $this->names;
+  }
+
+  /**
+   * Lowercase and turn every character outside [a-z0-9_] into an underscore.
+   *
+   * This is the transform the old Bash function names were built with, so
+   * input like "desk-setup" keeps finding "Desk setup".
+   */
+  private function normalize(string $value): string {
+    return preg_replace('/[^a-z0-9_]/', '_', mb_strtolower($value));
   }
 
 }

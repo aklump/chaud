@@ -25,13 +25,7 @@ class CacheClearCommand extends Command {
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $directory = $this->cache->getPath();
-    foreach (scandir($directory) as $basename) {
-      $path = $directory . '/' . $basename;
-      if (is_file($path) || is_link($path)) {
-        unlink($path);
-      }
-    }
+    $directory = $this->cache->flush();
     $output->writeln('🧹 Cache cleared.');
     $output->writeln('🪲 ' . $directory, OutputInterface::VERBOSITY_VERBOSE);
 

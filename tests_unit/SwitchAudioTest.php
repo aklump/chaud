@@ -41,19 +41,27 @@ class SwitchAudioTest extends TestCase {
     };
   }
 
-  private function getEngine(array $devices = [], bool $supports_levels = TRUE, array $missing = []): EngineInterface {
-    return new class($devices, $supports_levels, $missing) implements EngineInterface {
+  /**
+   * @param bool $supports_input_levels Ignored unless $supports_levels; lets a
+   *   test model an engine that can set output but not input levels (as the
+   *   macos-audio-devices engine does).
+   */
+  private function getEngine(array $devices = [], bool $supports_levels = TRUE, array $missing = [], bool $supports_input_levels = TRUE): EngineInterface {
+    return new class($devices, $supports_levels, $missing, $supports_input_levels) implements EngineInterface {
 
       private array $devices;
 
       private bool $supportsLevels;
 
+      private bool $supportsInputLevels;
+
       private array $missing;
 
-      public function __construct(array $devices, bool $supports_levels, array $missing) {
+      public function __construct(array $devices, bool $supports_levels, array $missing, bool $supports_input_levels) {
         $this->devices = $devices;
         $this->supportsLevels = $supports_levels;
         $this->missing = $missing;
+        $this->supportsInputLevels = $supports_input_levels;
       }
 
       public function applies(): bool {
@@ -75,7 +83,7 @@ class SwitchAudioTest extends TestCase {
       }
 
       public function getCommandSetInputLevel(string $device, float $limit): string {
-        if (!$this->supportsLevels) {
+        if (!$this->supportsLevels || !$this->supportsInputLevels) {
           throw new EngineFeatureException('no levels');
         }
 
@@ -200,6 +208,59 @@ class SwitchAudioTest extends TestCase {
     ]);
     $this->assertTrue($result->isSuccess());
     $this->assertSame(['set-in Mic', 'set-out Headphones'], $runner->ran);
+  }
+
+  public function testInputLevelSkippedWhileOutputLevelStillRuns() {
+    $runner = $this->getRunner();
+    $switch = new SwitchAudio($this->getEngine([], TRUE, [], FALSE), $runner);
+    $result = $switch([
+      'label' => 'Phone',
+      'input' => ['device' => 'Mic', 'level' => 0.5],
+      'output' => ['device' => 'Headphones', 'level' => 0.25],
+    ]);
+    $this->assertTrue($result->isSuccess());
+    $this->assertSame(['set-in Mic', 'set-out Headphones', 'level-out Headphones 0.25'], $runner->ran);
+  }
+
+  public function testInputOnlyOptionSkipsInputLevelWithoutError() {
+    $runner = $this->getRunner();
+    $switch = new SwitchAudio($this->getEngine([], TRUE, [], FALSE), $runner);
+    $result = $switch([
+      'label' => 'Phone',
+      'input' => ['device' => 'Mic', 'level' => 0.5],
+    ]);
+    $this->assertTrue($result->isSuccess());
+    $this->assertSame(['set-in Mic'], $runner->ran);
+  }
+
+  public function testMessageOmitsTheInputWhenOnlyAnOutputIsConfigured() {
+    $switch = new SwitchAudio($this->getEngine(), $this->getRunner());
+    $result = $switch([
+      'label' => 'Speakerphone',
+      'output' => ['device' => 'MacBook Pro Speakers'],
+    ]);
+    $this->assertSame('Speakerphone is active (🔈 MacBook Pro Speakers)', $result->getMessage());
+  }
+
+  public function testMessageOmitsTheOutputWhenOnlyAnInputIsConfigured() {
+    $switch = new SwitchAudio($this->getEngine(), $this->getRunner());
+    $result = $switch([
+      'label' => 'Mic only',
+      'input' => ['device' => 'External Microphone'],
+    ]);
+    $this->assertSame('Mic only is active (🎤 External Microphone)', $result->getMessage());
+  }
+
+  public function testOneUnavailableOptionDoesNotAffectAnother() {
+    // The old generator dropped an option whose device was missing without
+    // touching the others; each switch is now independent.
+    $runner = $this->getRunner();
+    $switch = new SwitchAudio($this->getEngine([], TRUE, ['Disconnected Headset']), $runner);
+    $missing = $switch(['label' => 'Headset', 'input' => ['device' => 'Disconnected Headset']]);
+    $this->assertFalse($missing->isSuccess());
+    $ok = $switch(['label' => 'Speakerphone', 'output' => ['device' => 'MacBook Pro Speakers']]);
+    $this->assertTrue($ok->isSuccess());
+    $this->assertSame(['set-out MacBook Pro Speakers'], $runner->ran);
   }
 
   public function testMissingDeviceRunsNothingAndReportsIt() {

@@ -29,6 +29,23 @@ class CacheManager {
     return $path;
   }
 
+  /**
+   * Remove every cached file, keeping the cache directory itself.
+   *
+   * @return string The cache directory.
+   */
+  public function flush(): string {
+    $directory = $this->getPath();
+    foreach (scandir($directory) as $basename) {
+      $path = $directory . '/' . $basename;
+      if (is_file($path) || is_link($path)) {
+        unlink($path);
+      }
+    }
+
+    return $directory;
+  }
+
   private function getDefaultPath(): string {
     $base = getenv('TMPDIR') ?: (getenv('TEMP') ?: '/tmp');
 
