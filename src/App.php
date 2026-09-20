@@ -14,7 +14,7 @@ class App {
   /**
    * Keep in step with .web_package/config.yml when releasing.
    */
-  const VERSION = '0.0.12';
+  const VERSION = '0.0.13';
 
   /**
    * The leaf directory name inside the system temp directory.

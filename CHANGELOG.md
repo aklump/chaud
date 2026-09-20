@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.13] - 2026-09-20
+
+- Edits to `~/.chaudio.yml` now take effect on the next run. The cached copy of the config is stored with a hash of the file and is rebuilt when the file changes, so `cache:clear` and `--refresh` are only needed after connecting a new device. Before, a change such as adding `scripts` was ignored until the cache was cleared.
 - The default config now uses your Mac's built-in devices, so it works on any Mac, and shows how to use emoji in labels, with commented examples for USB and Bluetooth devices. It only applies to new installs; an existing `~/.chaudio.yml` is not changed.
 - The Alfred workflow keyword is now `chauds` (was `chaudio`), quicker to type for switching; it runs `chaudio switch`. Re-import `Change Audio.alfredworkflow`.
 - **BREAKING:** The config file is now YAML, `~/.chaudio.yml`, instead of `~/.chaudio.json`. An existing `~/.chaudio.json` is converted automatically the first time you run chaudio and no `.yml` exists; you may then delete the JSON file.
@@ -27,10 +30,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **BREAKING:** The command is renamed from `chaud` to `chaudio`, and the interface is now sub-commands (`chaudio switch <label>`, alias `chaudio s <label>`) instead of flags. Run `chaudio -h` for help.
-  - `chaud <label>` becomes `chaudio s <label>`
-  - `chaud -l` becomes `chaudio s` (no label lists your options)
-  - `chaud -a` becomes `chaudio devices`
-  - `chaud -c` becomes `chaudio config` and `chaudio cache:clear`
+    - `chaud <label>` becomes `chaudio s <label>`
+    - `chaud -l` becomes `chaudio s` (no label lists your options)
+    - `chaud -a` becomes `chaudio devices`
+    - `chaud -c` becomes `chaudio config` and `chaudio cache:clear`
 - **BREAKING:** The config file moved from `~/.chaud.json` to `~/.chaudio.json`, and the cache directory from `com.aklump.chaud` to `com.aklump.chaudio`.
 - **BREAKING:** PHP 8.1 or newer is required (was 7.4). The Bash launcher is gone, so Bash is no longer required.
 - Errors are written to stderr, and failures now exit with a non-zero status, including a failed `chaudio devices`.
