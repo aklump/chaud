@@ -80,7 +80,7 @@ class DevicesCommand extends Command {
     foreach ($options as $option) {
       foreach (['input', 'output'] as $direction) {
         // An invalid config may lack both keys; that is not this command's error.
-        if (!isset($option[$direction][DeviceReference::DEVICE]) && !isset($option[$direction][DeviceReference::UID])) {
+        if (!isset($option[$direction][DeviceReference::NAME]) && !isset($option[$direction][DeviceReference::UID])) {
           continue;
         }
         if (DeviceReference::fromConfig($option[$direction])->matches($device)) {

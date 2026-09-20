@@ -22,13 +22,13 @@ class SwitchAudioOSXEngineTest extends TestCase {
   public function testGetCommandChangeInputUsesTheInputFlag() {
     $engine = new SwitchAudioOSXEngine();
     $engine->applies();
-    $this->assertStringEndsWith(' -s "External Microphone" -t input', $engine->getCommandChangeInput(new DeviceReference(DeviceReference::DEVICE, 'External Microphone')));
+    $this->assertStringEndsWith(' -s "External Microphone" -t input', $engine->getCommandChangeInput(new DeviceReference(DeviceReference::NAME, 'External Microphone')));
   }
 
   public function testGetCommandChangeOutputUsesTheOutputFlag() {
     $engine = new SwitchAudioOSXEngine();
     $engine->applies();
-    $this->assertStringEndsWith(' -s "External Headphones" -t output', $engine->getCommandChangeOutput(new DeviceReference(DeviceReference::DEVICE, 'External Headphones')));
+    $this->assertStringEndsWith(' -s "External Headphones" -t output', $engine->getCommandChangeOutput(new DeviceReference(DeviceReference::NAME, 'External Headphones')));
   }
 
   public function testUidIsPassedWithTheUidFlag() {
@@ -45,12 +45,12 @@ class SwitchAudioOSXEngineTest extends TestCase {
 
   public function testGetCommandSetOutputLevelThrows() {
     $this->expectException(EngineFeatureException::class);
-    (new SwitchAudioOSXEngine())->getCommandSetOutputLevel(new DeviceReference(DeviceReference::DEVICE, 'External Headphones'), 0.25);
+    (new SwitchAudioOSXEngine())->getCommandSetOutputLevel(new DeviceReference(DeviceReference::NAME, 'External Headphones'), 0.25);
   }
 
   public function testGetCommandSetInputLevelThrows() {
     $this->expectException(EngineFeatureException::class);
-    (new SwitchAudioOSXEngine())->getCommandSetInputLevel(new DeviceReference(DeviceReference::DEVICE, 'External Microphone'), 0.25);
+    (new SwitchAudioOSXEngine())->getCommandSetInputLevel(new DeviceReference(DeviceReference::NAME, 'External Microphone'), 0.25);
   }
 
   public function testGetAllDevicesIsNotImplemented() {

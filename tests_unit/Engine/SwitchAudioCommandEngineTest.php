@@ -40,14 +40,14 @@ class SwitchAudioCommandEngineTest extends TestCase {
     $script = $this->installScript(0755);
     $engine = new SwitchAudioCommandEngine();
     $engine->applies();
-    $this->assertSame(sprintf("%s -i 'External Microphone'", $script), $engine->getCommandChangeInput(new DeviceReference(DeviceReference::DEVICE, 'External Microphone')));
+    $this->assertSame(sprintf("%s -i 'External Microphone'", $script), $engine->getCommandChangeInput(new DeviceReference(DeviceReference::NAME, 'External Microphone')));
   }
 
   public function testGetCommandChangeOutputUsesTheScriptAndOutputFlag() {
     $script = $this->installScript(0755);
     $engine = new SwitchAudioCommandEngine();
     $engine->applies();
-    $this->assertSame(sprintf("%s -o 'MacBook Pro Speakers'", $script), $engine->getCommandChangeOutput(new DeviceReference(DeviceReference::DEVICE, 'MacBook Pro Speakers')));
+    $this->assertSame(sprintf("%s -o 'MacBook Pro Speakers'", $script), $engine->getCommandChangeOutput(new DeviceReference(DeviceReference::NAME, 'MacBook Pro Speakers')));
   }
 
   public function testUidThrowsBecauseItsSupportCannotBeVerified() {
@@ -66,18 +66,26 @@ class SwitchAudioCommandEngineTest extends TestCase {
     }
   }
 
+  public function testUidWithANameFallsBackToTheName() {
+    $script = $this->installScript(0755);
+    $engine = new SwitchAudioCommandEngine();
+    $engine->applies();
+    $reference = DeviceReference::fromConfig(['uid' => 'BuiltInSpeakerDevice', 'name' => 'MacBook Pro Speakers']);
+    $this->assertSame(sprintf("%s -o 'MacBook Pro Speakers'", $script), $engine->getCommandChangeOutput($reference));
+  }
+
   public function testGetHomepage() {
     $this->assertStringStartsWith('https://', (new SwitchAudioCommandEngine())->getHomepage());
   }
 
   public function testGetCommandSetOutputLevelThrows() {
     $this->expectException(EngineFeatureException::class);
-    (new SwitchAudioCommandEngine())->getCommandSetOutputLevel(new DeviceReference(DeviceReference::DEVICE, 'MacBook Pro Speakers'), 0.25);
+    (new SwitchAudioCommandEngine())->getCommandSetOutputLevel(new DeviceReference(DeviceReference::NAME, 'MacBook Pro Speakers'), 0.25);
   }
 
   public function testGetCommandSetInputLevelThrows() {
     $this->expectException(EngineFeatureException::class);
-    (new SwitchAudioCommandEngine())->getCommandSetInputLevel(new DeviceReference(DeviceReference::DEVICE, 'External Microphone'), 0.25);
+    (new SwitchAudioCommandEngine())->getCommandSetInputLevel(new DeviceReference(DeviceReference::NAME, 'External Microphone'), 0.25);
   }
 
   public function testGetAllDevicesIsNotImplemented() {

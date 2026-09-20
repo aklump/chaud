@@ -1,0 +1,18 @@
+options:
+  - label: Phone
+    aliases:
+      - p
+    input:
+      name: External Microphone
+    output:
+      name: External Headphones
+      level: 0.25
+    scripts:
+      - nowplaying-cli pause
+  - label: Speakerphone
+    aliases:
+      - sp
+    input:
+      name: MacBook Pro Microphone
+    output:
+      name: MacBook Pro Speakers

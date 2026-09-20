@@ -46,13 +46,13 @@ class SwitchCommandTest extends TestCase {
       [
         'label' => 'Phone',
         'aliases' => ['p'],
-        'input' => ['device' => 'Mic'],
-        'output' => ['device' => 'Headphones'],
+        'input' => ['name' => 'Mic'],
+        'output' => ['name' => 'Headphones'],
       ],
       [
         'label' => 'Speakerphone',
         'aliases' => ['sp'],
-        'output' => ['device' => 'Speakers'],
+        'output' => ['name' => 'Speakers'],
         'scripts' => ['pause <music>'],
       ],
     ]);
@@ -64,7 +64,7 @@ class SwitchCommandTest extends TestCase {
   }
 
   private function writeConfig(array $options): void {
-    file_put_contents($this->userHome . '/.chaudio.json', json_encode(['options' => $options]));
+    file_put_contents($this->userHome . '/.chaudio.yml', json_encode(['options' => $options]));
   }
 
   private function getEngine(): EngineInterface {
@@ -118,7 +118,7 @@ class SwitchCommandTest extends TestCase {
       }
     };
     $cache = new CacheManager();
-    $config = new ConfigManager($cache, $this->userHome, __DIR__ . '/../../install/config.json');
+    $config = new ConfigManager($cache, $this->userHome, __DIR__ . '/../../install/config.yml');
     $get_engine = new class($engine) extends GetAudioEngine {
 
       private ?EngineInterface $engine;
@@ -231,10 +231,8 @@ class SwitchCommandTest extends TestCase {
     $status = $tester->execute([], ['capture_stderr_separately' => TRUE]);
     $this->assertSame(Command::SUCCESS, $status);
     $this->assertSame(implode(PHP_EOL, [
-      '🔹 Phone',
-      '     p',
-      '🔹 Speakerphone',
-      '     sp',
+      '🔹 Phone (p)',
+      '🔹 Speakerphone (sp)',
     ]) . PHP_EOL, $tester->getDisplay());
     $this->assertSame('', $tester->getErrorOutput());
     $this->assertSame([], $this->runner->ran, 'Listing must not change audio.');
@@ -302,8 +300,8 @@ class SwitchCommandTest extends TestCase {
 
   public function testLabelIsMatchedByItsNormalizedForm() {
     $this->writeConfig([
-      ['label' => 'Desk setup', 'output' => ['device' => 'Speakers']],
-      ['label' => 'Other', 'output' => ['device' => 'Headphones']],
+      ['label' => 'Desk setup', 'output' => ['name' => 'Speakers']],
+      ['label' => 'Other', 'output' => ['name' => 'Headphones']],
     ]);
     $tester = $this->getTester($this->getEngine());
     $this->assertSame(Command::SUCCESS, $tester->execute(['label' => 'desk-setup']));
@@ -312,8 +310,8 @@ class SwitchCommandTest extends TestCase {
 
   private function getRenamedOptions(): array {
     return [
-      ['label' => 'Renamed', 'output' => ['device' => 'Speakers']],
-      ['label' => 'Other', 'output' => ['device' => 'Headphones']],
+      ['label' => 'Renamed', 'output' => ['name' => 'Speakers']],
+      ['label' => 'Other', 'output' => ['name' => 'Headphones']],
     ];
   }
 

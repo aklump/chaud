@@ -11,25 +11,25 @@ use PHPUnit\Framework\TestCase;
 class ValidateConfigurationTest extends TestCase {
 
   public function testDefaultConfigIsValid() {
-    $config = json_decode(file_get_contents(__DIR__ . '/../install/config.json'), TRUE);
+    $config = \Symfony\Component\Yaml\Yaml::parseFile(__DIR__ . '/../install/config.yml');
     $this->assertSame([], (new ValidateConfiguration())($config));
   }
 
   public static function dataForInvalidConfigProvider(): array {
     $valid_option = [
       'label' => 'Phone',
-      'input' => ['device' => 'External Microphone'],
+      'input' => ['name' => 'External Microphone'],
     ];
     $second_option = [
       'label' => 'Speakerphone',
-      'output' => ['device' => 'MacBook Pro Speakers'],
+      'output' => ['name' => 'MacBook Pro Speakers'],
     ];
 
     $tests = [];
     $tests['missing options'] = [[]];
     $tests['fewer than two options'] = [['options' => [$valid_option]]];
     $tests['option without a label'] = [
-      ['options' => [['input' => ['device' => 'Mic']], $second_option]],
+      ['options' => [['input' => ['name' => 'Mic']], $second_option]],
     ];
     $tests['option with neither input nor output'] = [
       ['options' => [['label' => 'Phone'], $second_option]],
@@ -39,7 +39,7 @@ class ValidateConfigurationTest extends TestCase {
         'options' => [
           [
             'label' => 'Phone',
-            'output' => ['device' => 'Headphones', 'level' => 1.5],
+            'output' => ['name' => 'Headphones', 'level' => 1.5],
           ],
           $second_option,
         ],
@@ -50,18 +50,7 @@ class ValidateConfigurationTest extends TestCase {
         'options' => [
           [
             'label' => 'Phone',
-            'output' => ['device' => 'Headphones', 'volume' => 0.5],
-          ],
-          $second_option,
-        ],
-      ],
-    ];
-    $tests['device block with both device and uid'] = [
-      [
-        'options' => [
-          [
-            'label' => 'Phone',
-            'output' => ['device' => 'Headphones', 'uid' => 'BuiltInHeadphoneOutputDevice'],
+            'output' => ['name' => 'Headphones', 'volume' => 0.5],
           ],
           $second_option,
         ],
@@ -97,7 +86,7 @@ class ValidateConfigurationTest extends TestCase {
     $tests['empty label'] = [
       [
         'options' => [
-          ['label' => '', 'output' => ['device' => 'Headphones']],
+          ['label' => '', 'output' => ['name' => 'Headphones']],
           $second_option,
         ],
       ],
@@ -119,13 +108,13 @@ class ValidateConfigurationTest extends TestCase {
         [
           'label' => 'Phone',
           'aliases' => ['p'],
-          'input' => ['device' => 73],
-          'output' => ['device' => 'Headphones', 'level' => 0],
+          'input' => ['name' => 73],
+          'output' => ['name' => 'Headphones', 'level' => 0],
           'scripts' => ['nowplaying-cli pause'],
         ],
         [
           'label' => 'Speakerphone',
-          'output' => ['device' => 'MacBook Pro Speakers', 'level' => 1],
+          'output' => ['name' => 'MacBook Pro Speakers', 'level' => 1],
         ],
       ],
     ];
@@ -142,7 +131,23 @@ class ValidateConfigurationTest extends TestCase {
         ],
         [
           'label' => 'Speakerphone',
-          'output' => ['device' => 'MacBook Pro Speakers'],
+          'output' => ['name' => 'MacBook Pro Speakers'],
+        ],
+      ],
+    ];
+    $this->assertSame([], (new ValidateConfiguration())($config));
+  }
+
+  public function testUidAndDeviceTogetherAreValid() {
+    $config = [
+      'options' => [
+        [
+          'label' => 'Phone',
+          'output' => ['name' => 'Headphones', 'uid' => 'BuiltInHeadphoneOutputDevice'],
+        ],
+        [
+          'label' => 'Speakerphone',
+          'output' => ['name' => 'MacBook Pro Speakers'],
         ],
       ],
     ];

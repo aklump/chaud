@@ -22,13 +22,13 @@ class SwitchAudioCommandEngine implements EngineInterface {
   }
 
   public function getCommandChangeInput(DeviceReference $device): string {
-    $this->assertNotUid($device);
+    $device = $this->getSupported($device);
 
     return sprintf("%s -i '%s'", $this->script, $device);
   }
 
   public function getCommandChangeOutput(DeviceReference $device): string {
-    $this->assertNotUid($device);
+    $device = $this->getSupported($device);
 
     return sprintf("%s -o '%s'", $this->script, $device);
   }
@@ -52,13 +52,19 @@ class SwitchAudioCommandEngine implements EngineInterface {
 
   /**
    * The capabilities of ~/bin/SwitchAudio cannot be verified, so a UID is not
-   * assumed to be understood.
+   * assumed to be understood.  A device name configured with the UID is used
+   * instead.
    *
    * @throws \AKlump\ChangeAudio\Exception\EngineFeatureException
    */
-  private function assertNotUid(DeviceReference $device): void {
-    if ($device->isUid()) {
-      throw new EngineFeatureException('SwitchAudioCommandEngine does not support devices by "uid"; use "device" instead.');
+  private function getSupported(DeviceReference $device): DeviceReference {
+    if ($device->isUid() && $device->getFallback()) {
+      return $device->getFallback();
     }
+    if ($device->isUid()) {
+      throw new EngineFeatureException('SwitchAudioCommandEngine does not support devices by "uid"; use "name" instead.');
+    }
+
+    return $device;
   }
 }
