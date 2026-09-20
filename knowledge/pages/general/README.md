@@ -35,12 +35,23 @@ List the devices on your Mac with `chaudio devices` (this needs the default engi
 
 ```
 $ chaudio s phone
-Phone is active (🎤 External Microphone  🔈 External Headphones)
+Phone is active (🎙 External Microphone  🔈 External Headphones)
 $ chaudio s sp
-Speakerphone is active (🎤 MacBook Pro Microphone  🔈 MacBook Pro Speakers)
+Speakerphone is active (🎙 MacBook Pro Microphone  🔈 MacBook Pro Speakers)
 ```
 
 Run `chaudio -h` at any time to see the commands, and `chaudio <command> -h` for the details of one.
+
+### Check that it works
+
+The message chaudio prints only says it *ran* the switch. To see the change for yourself, watch macOS while you switch:
+
+1. Open **System Settings > Sound** and pick the **Output** tab (or **Input**, if the option you are testing sets a microphone).
+2. Click a device in the list that is *not* the one you are about to switch to, so you start from a known state.
+3. Run the switch, for example `chaudio s phone`, without closing the window.
+4. The highlighted device in the list changes to the one your option names. If it does, chaudio is working. To test the Alfred workflow, do the same but type `chauds phone` in Alfred instead.
+
+If the highlight does not move, run the switch again with `-v` (`chaudio s phone -v`) to see the engine and each command that was run. A device that cannot be found, such as a Bluetooth headset that is turned off, is reported on stderr and leaves your audio unchanged, so check that the device is connected and listed by `chaudio devices`.
 
 ## Requirements
 
