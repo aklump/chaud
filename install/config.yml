@@ -1,18 +1,50 @@
+# Each option is a preset. Switch to one with `chaudio s <alias>`, or run
+# `chaudio s` and pick one with the cursor keys. Run `chaudio devices` to see
+# your devices' names and UIDs.
+#
+# Start a label with an emoji to spot it quickly in the list, for example:
+#   🎧 headphones   🔊 speakers   🎤 microphone   👥 meetings   📞 calls
+# An emoji is part of the label, so `chaudio s headphones` will not find
+# "🎧 Headphones". Give every option an alias to type instead.
 options:
-  - label: Phone
-    aliases:
-      - p
-    input:
-      name: External Microphone
+  - label: '🎧 Headphones'
+    aliases: [ h, hp ]
     output:
-      name: External Headphones
+      uid: BuiltInHeadphoneOutputDevice
       level: 0.25
-    scripts:
-      - nowplaying-cli pause
-  - label: Speakerphone
-    aliases:
-      - sp
+
+  - label: '🔊 MacBook'
+    aliases: [ m, mb ]
     input:
-      name: MacBook Pro Microphone
+      uid: BuiltInMicrophoneDevice
     output:
-      name: MacBook Pro Speakers
+      uid: BuiltInSpeakerDevice
+
+  # The devices above are built into every Mac, so their UIDs are the same on
+  # yours. The examples below use made-up devices: replace the names and UIDs
+  # with your own from `chaudio devices`, then remove the leading `# `.
+  #
+  # An option may set both an input and an output, and run scripts afterward.
+  # - label: '👥 Meetings'
+  #   aliases: [ z ]
+  #   input:
+  #     name: USB Webcam
+  #     uid: 'AppleUSBAudioEngine:Acme:USB Webcam:1234567:3'
+  #   output:
+  #     name: USB Speaker
+  #     uid: 'AppleUSBAudioEngine:Acme:USB Speaker:ABC123XYZ:1'
+  #   scripts:
+  #     - nowplaying-cli pause
+  #
+  # An option may set only an input...
+  # - label: '🎤 Studio microphone'
+  #   aliases: [ mic ]
+  #   input:
+  #     uid: 'AppleUSBAudioEngine:Acme:USB audio CODEC:7654321:2'
+  #
+  # ...or only an output. Bluetooth devices are identified by their address.
+  # - label: '🎧 Bluetooth headphones'
+  #   aliases: [ bt ]
+  #   output:
+  #     name: Acme BT-100
+  #     uid: 'AA-BB-CC-DD-EE-FF:output'
