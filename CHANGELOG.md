@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.17] - 2026-09-21
+
 ### Changed
 
 - **BREAKING:** The config file is now `~/.config/chaudio/config.yml`, following the XDG convention (`$XDG_CONFIG_HOME` is honored). An existing `~/.chaudio.yml` is moved there automatically the first time you run chaudio, with a notice.

@@ -14,5 +14,5 @@ class App {
   /**
    * Keep in step with .web_package/config.yml when releasing.
    */
-  const VERSION = '0.0.16';
+  const VERSION = '0.0.17';
 }
