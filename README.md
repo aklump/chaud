@@ -102,9 +102,8 @@ chaudio looks for an engine in the following order and uses the first one it fin
 
 1. [macos-audio-devices](https://github.com/karaggeorge/macos-audio-devices), the default, and the only engine that can set output levels or list your devices. It is declared in `package.json`, so run `npm install` (or `yarn install`) inside the `chaudio` folder.
 2. [switchaudio-osx](https://github.com/deweller/switchaudio-osx), when its `SwitchAudioSource` command is on your `$PATH`.
-3. [SwitchAudio](https://www.macscripter.net/t/switchaudio-a-command-line-tool-to-change-the-audio-input-and-output-device/75630/1), when it is installed as an executable at `~/bin/SwitchAudio`.
 
-Only macos-audio-devices can list your devices. Under either of the other two, `chaudio devices` says that listing is unsupported and exits with status 1, so you will need the device names from System Settings.
+Only macos-audio-devices can list your devices. Under switchaudio-osx, `chaudio devices` says that listing is unsupported and exits with status 1, so you will need the device names from System Settings.
 
 ### Alfred workflow
 
@@ -177,7 +176,7 @@ Each option takes these keys:
 
 - `label` (required) is the name you type, matched case-insensitively. A label with spaces, such as `Desk Setup`, is typed quoted (`chaudio s "desk setup"`) or with underscores (`chaudio s desk_setup`).
 - `aliases` are shorter names for the same option.
-- `input` and `output` each identify a device with a `name` (as in the `Name` column of `chaudio devices`, or the device's number) or with a `uid` (see below), or both (the `uid` is used, and the `name` is kept for reading and for engines that cannot use a UID), plus an optional `level` from 0 to 1. An option needs at least one of the two; leave one out to change only the other. Only the macos-audio-devices engine applies `level`, and only to the output; a `level` on `input` is accepted but ignored.
+- `input` and `output` each identify a device with a `name` (as in the `Name` column of `chaudio devices`, or the device's number) or with a `uid` (see below), or both (the `uid` is used, and the `name` is kept for reading), plus an optional `level` from 0 to 1. An option needs at least one of the two; leave one out to change only the other. Only the macos-audio-devices engine applies `level`, and only to the output; a `level` on `input` is accepted but ignored.
 - `scripts` are shell commands run after the switch. The `nowplaying-cli pause` in the default config's commented Meetings example needs [nowplaying-cli](https://github.com/kirtan-shah/nowplaying-cli), which you install separately; remove that line if you don't use it. If a script fails, chaudio reports it and exits with status 1.
 
 ### Identifying devices: prefer `uid`
@@ -194,7 +193,7 @@ Every device has a UID, an identifier assigned by macOS that survives a restart.
 
 A name is the next best choice, but two devices can share a name (in which case the first is used), and macOS or you can rename a device. A device number is the least reliable, because macOS reassigns those when the computer restarts.
 
-A `uid` works with macos-audio-devices and with `SwitchAudioSource` (which matches it as a substring, so paste the whole UID). The `~/bin/SwitchAudio` engine cannot be verified to understand UIDs, so it uses the `name` when you give both, and otherwise stops the switch with a message.
+A `uid` works with macos-audio-devices and with `SwitchAudioSource` (which matches it as a substring, so paste the whole UID).
 
 If a device cannot be found, for example a Bluetooth headset that is disconnected, chaudio prints what it could not find on stderr, leaves your audio unchanged, and exits with status 1.
 
