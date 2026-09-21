@@ -11,17 +11,17 @@ tags: ''
 
 ## Summary
 
-On a Mac, moving from a headset call to speakerphone means two trips into Sound settings: one for the input, one for the output. **chaudio** (change audio; the project and package are still named `chaud`) lets you name those pairings once, give them short aliases, and switch with a single command. Each named option can set the input, the output, or both, adjust the output level, and run your own shell commands, for example pausing music when you pick up a call. It is a small PHP command-line app over existing macOS audio switchers, so the operating system still does the actual switching, and your configuration and device lookups are cached so each switch runs quickly.
+On a Mac, moving from a headset call to speakerphone means two trips into Sound settings: one for the input, one for the output. **chaudio** (change audio) lets you name those pairings once, give them short aliases, and switch with a single command. Each named option can set the input, the output, or both, adjust the output level, and run your own shell commands, for example pausing music when you pick up a call. It is a small PHP command-line app over existing macOS audio switchers, so the operating system still does the actual switching, and your configuration and device lookups are cached so each switch runs quickly.
 
 ## Quick Start
 
-Install into `~/opt/chaud`, add the default audio engine, and link the command onto your `$PATH` (this assumes `~/bin` is on it):
+Install into `~/opt/chaudio`, add the default audio engine, and link the command onto your `$PATH` (this assumes `~/bin` is on it):
 
 ```shell
 mkdir -p ~/opt && cd ~/opt
 {{ composer.create_project|raw }}
-cd chaud && npm install
-ln -s ~/opt/chaud/chaudio ~/bin/chaudio
+cd chaudio && npm install
+ln -s ~/opt/chaudio/chaudio ~/bin/chaudio
 ```
 
 Print the configuration file's path. The first run creates it from the defaults:
@@ -61,24 +61,24 @@ If the highlight does not move, run the switch again with `-v` (`chaudio s h -v`
 
 ## Installation
 
-chaudio is installed from its GitHub repository, <https://github.com/aklump/chaud>. In a terminal, change to where you want the app to live (the examples use `~/opt`), then install it with Composer:
+chaudio is installed from its GitHub repository, <https://github.com/aklump/chaudio>. In a terminal, change to where you want the app to live (the examples use `~/opt`), then install it with Composer:
 
 ```shell
 {{ composer.create_project|raw }}
 ```
 
-This creates a `chaud` folder (that is the package name). Link its `chaudio` script into a directory on your `$PATH`, such as `~/bin`:
+This creates a `chaudio` folder (that is the package name). Link its `chaudio` script into a directory on your `$PATH`, such as `~/bin`:
 
 ```shell
 cd ~/bin
-ln -s ~/opt/chaud/chaudio .
+ln -s ~/opt/chaudio/chaudio .
 ```
 
 ### Audio engine
 
 chaudio looks for an engine in the following order and uses the first one it finds. The order is fixed; no setting prefers a different engine when more than one is installed.
 
-1. [macos-audio-devices](https://github.com/karaggeorge/macos-audio-devices), the default, and the only engine that can set output levels or list your devices. It is declared in `package.json`, so run `npm install` (or `yarn install`) inside the `chaud` folder.
+1. [macos-audio-devices](https://github.com/karaggeorge/macos-audio-devices), the default, and the only engine that can set output levels or list your devices. It is declared in `package.json`, so run `npm install` (or `yarn install`) inside the `chaudio` folder.
 2. [switchaudio-osx](https://github.com/deweller/switchaudio-osx), when its `SwitchAudioSource` command is on your `$PATH`.
 3. [SwitchAudio](https://www.macscripter.net/t/switchaudio-a-command-line-tool-to-change-the-audio-input-and-output-device/75630/1), when it is installed as an executable at `~/bin/SwitchAudio`.
 
@@ -92,7 +92,7 @@ The keyword is `chauds`, not `chaudio switch`, on purpose: Alfred is for quick, 
 
 ### Updating
 
-Delete the `chaud` folder you installed earlier, then repeat the installation, including the audio engine. Your configuration lives in your home directory, so deleting the folder does not remove it.
+Delete the `chaudio` folder you installed earlier, then repeat the installation, including the audio engine. Your configuration lives in your home directory, so deleting the folder does not remove it.
 
 ## Configuration
 

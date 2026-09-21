@@ -49,7 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Migrating from `chaud`
 
 1. Rename your config file: `mv ~/.chaud.json ~/.chaudio.json`. Its contents do not change. If you skip this step, `chaudio` installs the default config at `~/.chaudio.json` and your options will appear to be missing.
-2. Replace the symlink: `rm ~/bin/chaud && ln -s ~/opt/chaud/chaudio ~/bin/chaudio` (adjust the paths if you installed elsewhere).
+2. Replace the symlink: `rm ~/bin/chaud && ln -s ~/opt/chaudio/chaudio ~/bin/chaudio` (adjust the paths if you installed elsewhere).
 3. Re-import `Change Audio.alfredworkflow` in Alfred and delete the old workflow. It now runs `chaudio s`.
 4. Optional: keep the short name with a shell alias, e.g. `alias chaud='chaudio s'` in `~/.zshrc`.
 5. Optional cleanup: `rm -rf "${TMPDIR:-/tmp}/com.aklump.chaud"` removes the old cache. It is disposable and is rebuilt on first use.
