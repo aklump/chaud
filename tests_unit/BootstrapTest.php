@@ -32,7 +32,7 @@ class BootstrapTest extends TestCase {
     $env += [
       'PATH' => getenv('PATH'),
       'HOME' => $this->getTestFileFilepath('home/', TRUE),
-      'CACHE_PATH' => $this->getTestFileFilepath('cache/', TRUE),
+      'CHAUDIO_CACHE_PATH' => $this->getTestFileFilepath('cache/', TRUE),
       'CHAUDIO_PHP' => PHP_BINARY,
     ];
     $env = array_filter($env, fn($value) => $value !== NULL);

@@ -22,7 +22,7 @@ class CacheManagerTest extends TestCase {
     $this->deleteTestFile($cache_dir);
     chmod(dirname($cache_dir), 0555);
     $this->assertDirectoryDoesNotExist($cache_dir);
-    putenv('CACHE_PATH=' . $cache_dir);
+    putenv('CHAUDIO_CACHE_PATH=' . $cache_dir);
     $this->expectException(RuntimeException::class);
     (new CacheManager())->getPath();
   }
@@ -31,42 +31,40 @@ class CacheManagerTest extends TestCase {
     $cache_dir = $this->getTestFileFilepath('cache/');
     $this->deleteTestFile($cache_dir);
     $this->assertDirectoryDoesNotExist($cache_dir);
-    putenv('CACHE_PATH=' . $cache_dir);
+    putenv('CHAUDIO_CACHE_PATH=' . $cache_dir);
     (new CacheManager())->getPath();
     $this->assertDirectoryExists($cache_dir);
   }
 
-  public function testGetPathDefaultsToTmpdirWhenCachePathIsUnset() {
-    $tmp = $this->getTestFileFilepath('tmpdir/', TRUE);
-    $original = [getenv('CACHE_PATH'), getenv('TMPDIR'), getenv('TEMP')];
+  public function testGetPathDefaultsToDotCacheUnderHome() {
+    $home = rtrim($this->getTestFileFilepath('home/', TRUE), '/');
+    $original = [getenv('CHAUDIO_CACHE_PATH'), getenv('HOME'), getenv('XDG_CACHE_HOME')];
     try {
-      putenv('CACHE_PATH');
-      putenv('TEMP');
-      // The trailing slash must not be doubled.
-      putenv('TMPDIR=' . $tmp . '/');
+      putenv('CHAUDIO_CACHE_PATH');
+      putenv('XDG_CACHE_HOME');
+      putenv('HOME=' . $home);
       $path = (new CacheManager())->getPath();
-      $this->assertSame($tmp . '/' . App::CACHE_DIRNAME, $path);
+      $this->assertSame($home . '/.cache/' . App::BIN, $path);
       $this->assertDirectoryExists($path);
-      $this->assertSame('com.aklump.chaudio', basename($path));
     }
     finally {
-      foreach (['CACHE_PATH', 'TMPDIR', 'TEMP'] as $i => $name) {
+      foreach (['CHAUDIO_CACHE_PATH', 'HOME', 'XDG_CACHE_HOME'] as $i => $name) {
         putenv($original[$i] === FALSE ? $name : "$name=$original[$i]");
       }
     }
   }
 
-  public function testGetPathDefaultFallsBackToTempThenSlashTmp() {
-    $tmp = $this->getTestFileFilepath('temp/', TRUE);
-    $original = [getenv('CACHE_PATH'), getenv('TMPDIR'), getenv('TEMP')];
+  public function testGetPathDefaultUsesXdgCacheHome() {
+    $xdg = rtrim($this->getTestFileFilepath('xdg/', TRUE), '/');
+    $original = [getenv('CHAUDIO_CACHE_PATH'), getenv('XDG_CACHE_HOME')];
     try {
-      putenv('CACHE_PATH');
-      putenv('TMPDIR');
-      putenv('TEMP=' . $tmp);
-      $this->assertSame($tmp . '/' . App::CACHE_DIRNAME, (new CacheManager())->getPath());
+      putenv('CHAUDIO_CACHE_PATH');
+      // The trailing slash must not be doubled.
+      putenv('XDG_CACHE_HOME=' . $xdg . '/');
+      $this->assertSame($xdg . '/' . App::BIN, (new CacheManager())->getPath());
     }
     finally {
-      foreach (['CACHE_PATH', 'TMPDIR', 'TEMP'] as $i => $name) {
+      foreach (['CHAUDIO_CACHE_PATH', 'XDG_CACHE_HOME'] as $i => $name) {
         putenv($original[$i] === FALSE ? $name : "$name=$original[$i]");
       }
     }
@@ -78,7 +76,7 @@ class CacheManagerTest extends TestCase {
     $cache_dir = $this->getTestFileFilepath('cache/', TRUE);
     mkdir($cache_dir . '/subdir');
     file_put_contents($cache_dir . '/config.php', '<?php return [];');
-    putenv('CACHE_PATH=' . $cache_dir);
+    putenv('CHAUDIO_CACHE_PATH=' . $cache_dir);
     $this->assertSame($cache_dir, (new CacheManager())->flush());
     $this->assertFileDoesNotExist($cache_dir . '/config.php');
     $this->assertDirectoryExists($cache_dir . '/subdir');

@@ -18,7 +18,7 @@ use Symfony\Component\Yaml\Yaml;
  */
 class ConfigManager {
 
-  const CONFIG_BASENAME = '.' . App::BIN . '.yml';
+  const CONFIG_BASENAME = 'config.yml';
 
   /**
    * @var \AKlump\ChangeAudio\Cache\CacheManager
@@ -27,18 +27,37 @@ class ConfigManager {
 
   private string $userHome;
 
+  private string $configDirectory;
+
   private string $defaultConfigPath;
 
   private array $validationErrors = [];
+
+  private array $notices = [];
 
   public function getValidationErrors(): array {
     return $this->validationErrors;
   }
 
+  /**
+   * @return string[] Messages about what loading the config changed, such as
+   *   moving a legacy config file.
+   */
+  public function getNotices(): array {
+    return $this->notices;
+  }
+
+  /**
+   * @param \AKlump\ChangeAudio\Cache\CacheManager $cache_manager
+   * @param string $user_home Defaults to $_SERVER['HOME']. When given, as in
+   *   tests, $XDG_CONFIG_HOME is ignored so the config stays under it.
+   * @param string $default_config_path
+   */
   public function __construct(CacheManager $cache_manager, string $user_home = '', string $default_config_path = '') {
     $this->cache = $cache_manager;
-    $user_home = $user_home ?: $_SERVER['HOME'] ?? '';
-    $this->setUserHome($user_home);
+    $this->setUserHome($user_home ?: $_SERVER['HOME'] ?? '');
+    $config_home = $user_home ? $this->userHome . '/.config' : (new GetXdgBaseDirectory())('XDG_CONFIG_HOME', '.config', $this->userHome);
+    $this->configDirectory = $config_home . '/' . App::BIN;
     $this->defaultConfigPath = $default_config_path ?: __DIR__ . '/../install/config.yml';
   }
 
@@ -55,12 +74,12 @@ class ConfigManager {
     $hash_file = $this->cache->getPath() . '/config.hash';
 
     // The cached config is only good for the exact file it was built from, so
-    // editing ~/.chaudio.yml never needs a manual cache clear.
+    // editing the config never needs a manual cache clear.
     if (file_exists($config_include) && $this->isCacheCurrent($config_path, $hash_file)) {
       return require $config_include;
     }
 
-    if (!file_exists($config_path) && !$this->migrateLegacyConfig($config_path) && !$this->installDefaultConfig($config_path)) {
+    if (!file_exists($config_path) && !$this->createConfig($config_path)) {
       $message = error_get_last()['message'] ?? '';
       throw new RuntimeException(sprintf("Failed to install config at: %s\n$message", $config_path));
     }
@@ -87,7 +106,30 @@ class ConfigManager {
   }
 
   public function path(): string {
-    return $this->userHome . '/' . self::CONFIG_BASENAME;
+    return $this->configDirectory . '/' . self::CONFIG_BASENAME;
+  }
+
+  private function createConfig(string $config_path): bool {
+    if (!is_dir($this->configDirectory) && !@mkdir($this->configDirectory, 0755, TRUE)) {
+      return FALSE;
+    }
+
+    return $this->moveLegacyYamlConfig($config_path)
+      || $this->migrateLegacyConfig($config_path)
+      || $this->installDefaultConfig($config_path);
+  }
+
+  /**
+   * Move a ~/.chaudio.yml from before the XDG layout into the config directory.
+   */
+  private function moveLegacyYamlConfig(string $config_path): bool {
+    $legacy_path = $this->userHome . '/.' . App::BIN . '.yml';
+    if (!file_exists($legacy_path) || !@rename($legacy_path, $config_path)) {
+      return FALSE;
+    }
+    $this->notices[] = sprintf('📦 Moved your config from %s to %s', $legacy_path, $config_path);
+
+    return TRUE;
   }
 
   /**
@@ -112,6 +154,8 @@ class ConfigManager {
 
   /**
    * Convert a pre-YAML ~/.chaudio.json into the YAML config file.
+   *
+   * The JSON file is left in place.
    */
   private function migrateLegacyConfig(string $config_path): bool {
     $legacy_path = $this->userHome . '/.' . App::BIN . '.json';
@@ -123,7 +167,12 @@ class ConfigManager {
       return FALSE;
     }
 
-    return @file_put_contents($config_path, Yaml::dump($legacy, 6, 2)) !== FALSE;
+    if (@file_put_contents($config_path, Yaml::dump($legacy, 6, 2)) === FALSE) {
+      return FALSE;
+    }
+    $this->notices[] = sprintf('📦 Converted your config from %s to %s', $legacy_path, $config_path);
+
+    return TRUE;
   }
 
   private function installDefaultConfig(string $config_path): bool {

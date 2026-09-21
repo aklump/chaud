@@ -6,6 +6,7 @@ namespace AKlump\ChangeAudio\Command;
 use AKlump\ChangeAudio\ConfigManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ConfigCommand extends Command {
@@ -29,6 +30,10 @@ class ConfigCommand extends Command {
     if (!file_exists($path)) {
       // The default config is installed as a side effect of loading.
       $this->config->get();
+      $error_output = $output instanceof ConsoleOutputInterface ? $output->getErrorOutput() : $output;
+      foreach ($this->config->getNotices() as $notice) {
+        $error_output->writeln($notice, OutputInterface::OUTPUT_RAW);
+      }
     }
     $output->writeln('✏️ ' . $path);
 

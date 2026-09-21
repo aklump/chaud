@@ -10,6 +10,7 @@ use AKlump\ChangeAudio\Engine\EngineInterface;
 use AKlump\ChangeAudio\GetAudioEngine;
 use AKlump\ChangeAudio\Process\CommandRunner;
 use AKlump\ChangeAudio\Tests\Unit\TestingTraits\TestWithFilesTrait;
+use AKlump\ChangeAudio\Tests\Unit\TestingTraits\WriteUserConfigTrait;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -31,6 +32,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 class SwitchCommandTest extends TestCase {
 
   use TestWithFilesTrait;
+  use WriteUserConfigTrait;
 
   private string $userHome;
 
@@ -39,9 +41,9 @@ class SwitchCommandTest extends TestCase {
   private CommandRunner $runner;
 
   protected function setUp(): void {
-    $this->originalCachePath = getenv('CACHE_PATH') === FALSE ? NULL : getenv('CACHE_PATH');
+    $this->originalCachePath = getenv('CHAUDIO_CACHE_PATH') === FALSE ? NULL : getenv('CHAUDIO_CACHE_PATH');
     $this->userHome = $this->getTestFileFilepath('home/', TRUE);
-    putenv('CACHE_PATH=' . $this->getTestFileFilepath('cache/', TRUE));
+    putenv('CHAUDIO_CACHE_PATH=' . $this->getTestFileFilepath('cache/', TRUE));
     $this->writeConfig([
       [
         'label' => 'Phone',
@@ -59,12 +61,12 @@ class SwitchCommandTest extends TestCase {
   }
 
   protected function tearDown(): void {
-    putenv($this->originalCachePath === NULL ? 'CACHE_PATH' : 'CACHE_PATH=' . $this->originalCachePath);
+    putenv($this->originalCachePath === NULL ? 'CHAUDIO_CACHE_PATH' : 'CHAUDIO_CACHE_PATH=' . $this->originalCachePath);
     $this->deleteAllTestFiles();
   }
 
   private function writeConfig(array $options): void {
-    file_put_contents($this->userHome . '/.chaudio.yml', json_encode(['options' => $options]));
+    $this->writeUserConfig($this->userHome, json_encode(['options' => $options]));
   }
 
   private function getEngine(): EngineInterface {
@@ -204,7 +206,7 @@ class SwitchCommandTest extends TestCase {
     $tester = $this->getTester($this->getEngine());
     $tester->execute(['label' => 'Phone'], ['verbosity' => OutputInterface::VERBOSITY_VERBOSE]);
     $display = $tester->getDisplay();
-    $this->assertStringContainsString('🪲 ' . getenv('CACHE_PATH'), $display);
+    $this->assertStringContainsString('🪲 ' . getenv('CHAUDIO_CACHE_PATH'), $display);
     $this->assertStringContainsString('🪲 set-in Mic', $display);
     $this->assertStringContainsString('🪲 set-out Headphones', $display);
     $this->assertStringContainsString('Phone is active', $display);
@@ -266,7 +268,7 @@ class SwitchCommandTest extends TestCase {
   public function testRefreshFlushesTheCacheThenSwitches() {
     $tester = $this->getTester($this->getEngine());
     $tester->execute([]);
-    $cache_dir = getenv('CACHE_PATH');
+    $cache_dir = getenv('CHAUDIO_CACHE_PATH');
     file_put_contents($cache_dir . '/MacOSAudioDevicesEngine.device_index_include.input.php', '<?php return [];');
     $this->assertFileExists($cache_dir . '/config.php');
 
@@ -294,7 +296,7 @@ class SwitchCommandTest extends TestCase {
   public function testRefreshIsMentionedInVerboseOutput() {
     $tester = $this->getTester($this->getEngine());
     $tester->execute(['label' => 'Phone', '--refresh' => TRUE], ['verbosity' => OutputInterface::VERBOSITY_VERBOSE]);
-    $this->assertStringContainsString('🪲 Flushed ' . getenv('CACHE_PATH'), $tester->getDisplay());
+    $this->assertStringContainsString('🪲 Flushed ' . getenv('CHAUDIO_CACHE_PATH'), $tester->getDisplay());
   }
 
   public function testLabelIsMatchedByItsNormalizedForm() {

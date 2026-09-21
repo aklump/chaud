@@ -247,12 +247,12 @@ class MacOSAudioDevicesEngineTest extends TestCase {
     $this->cacheDir = $this->getTestFileFilepath('cache/', TRUE);
     $this->deleteTestFile($this->cacheDir);
     $this->cacheDir = $this->getTestFileFilepath('cache/', TRUE);
-    putenv('CACHE_PATH=' . $this->cacheDir);
+    putenv('CHAUDIO_CACHE_PATH=' . $this->cacheDir);
     parent::setUp();
   }
 
   protected function tearDown(): void {
-    putenv('CACHE_PATH');
+    putenv('CHAUDIO_CACHE_PATH');
     $this->deleteAllTestFiles();
     parent::tearDown();
   }

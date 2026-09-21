@@ -12,6 +12,7 @@ use AKlump\ChangeAudio\Engine\EngineInterface;
 use AKlump\ChangeAudio\GetAudioEngine;
 use AKlump\ChangeAudio\Process\CommandRunner;
 use AKlump\ChangeAudio\Tests\Unit\TestingTraits\TestWithFilesTrait;
+use AKlump\ChangeAudio\Tests\Unit\TestingTraits\WriteUserConfigTrait;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\StringInput;
@@ -43,20 +44,29 @@ use Symfony\Component\Console\Tester\ApplicationTester;
 class CommandAbbreviationTest extends TestCase {
 
   use TestWithFilesTrait;
+  use WriteUserConfigTrait;
 
   private ?string $originalCachePath;
 
   private ?string $originalHome;
 
+  /**
+   * @var string|false
+   */
+  private $originalXdgConfigHome;
+
   private array $ran = [];
 
   protected function setUp(): void {
-    $this->originalCachePath = getenv('CACHE_PATH') === FALSE ? NULL : getenv('CACHE_PATH');
+    $this->originalCachePath = getenv('CHAUDIO_CACHE_PATH') === FALSE ? NULL : getenv('CHAUDIO_CACHE_PATH');
     $this->originalHome = $_SERVER['HOME'] ?? NULL;
     $home = $this->getTestFileFilepath('home/', TRUE);
     $_SERVER['HOME'] = $home;
-    putenv('CACHE_PATH=' . $this->getTestFileFilepath('cache/', TRUE));
-    file_put_contents($home . '/.chaudio.yml', json_encode(['options' => [
+    // ConfigManager reads $XDG_CONFIG_HOME when it defaults to $_SERVER['HOME'].
+    $this->originalXdgConfigHome = getenv('XDG_CONFIG_HOME');
+    putenv('XDG_CONFIG_HOME');
+    putenv('CHAUDIO_CACHE_PATH=' . $this->getTestFileFilepath('cache/', TRUE));
+    $this->writeUserConfig($home, json_encode(['options' => [
       ['label' => 'Phone', 'output' => ['name' => 'Headphones']],
       ['label' => 'List', 'output' => ['name' => 'Speakers']],
     ]]));
@@ -64,7 +74,8 @@ class CommandAbbreviationTest extends TestCase {
   }
 
   protected function tearDown(): void {
-    putenv($this->originalCachePath === NULL ? 'CACHE_PATH' : 'CACHE_PATH=' . $this->originalCachePath);
+    putenv($this->originalCachePath === NULL ? 'CHAUDIO_CACHE_PATH' : 'CHAUDIO_CACHE_PATH=' . $this->originalCachePath);
+    putenv($this->originalXdgConfigHome === FALSE ? 'XDG_CONFIG_HOME' : 'XDG_CONFIG_HOME=' . $this->originalXdgConfigHome);
     if ($this->originalHome === NULL) {
       unset($_SERVER['HOME']);
     }

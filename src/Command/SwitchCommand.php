@@ -57,6 +57,9 @@ class SwitchCommand extends Command {
     }
 
     $config = $this->config->get();
+    foreach ($this->config->getNotices() as $notice) {
+      $error_output->writeln($notice, OutputInterface::OUTPUT_RAW);
+    }
     if ($this->config->getValidationErrors()) {
       $error_output->writeln('❌ Invalid configuration:');
       foreach ($this->config->getValidationErrors() as $error) {

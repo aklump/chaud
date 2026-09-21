@@ -28,7 +28,7 @@ Print the configuration file's path. The first run creates it from the defaults:
 
 ```
 $ chaudio config
-✏️ /Users/you/.chaudio.yml
+✏️ /Users/you/.config/chaudio/config.yml
 ```
 
 The default options use your Mac's built-in devices, so you can switch right away. To add your own USB or Bluetooth devices, list them with `chaudio devices` (this needs the default engine you just installed) and copy their UIDs, following the commented examples in that file:
@@ -122,7 +122,7 @@ Delete the `chaudio` folder you installed earlier, then repeat the installation,
 
 ## Configuration
 
-Run `chaudio config` to print the configuration file's path, which is `~/.chaudio.yml`. If the file does not exist, chaudio creates it from the defaults shown below. Open it and edit the `options` list, which needs at least two entries.
+Run `chaudio config` to print the configuration file's path, which is `~/.config/chaudio/config.yml` (or `$XDG_CONFIG_HOME/chaudio/config.yml` if you set that variable). If the file does not exist, chaudio creates it from the defaults shown below. A config from an earlier version at `~/.chaudio.yml` is moved there the first time you run chaudio, and chaudio says so. Open it and edit the `options` list, which needs at least two entries.
 
 ```yaml
 {{ example_config|raw }}
@@ -162,7 +162,7 @@ The file is validated against `json_schema/config.schema.json` before it is cach
 
 ### Cache
 
-chaudio caches the validated configuration and the device lookups in `$TMPDIR/com.aklump.chaudio`. Editing the configuration file is picked up automatically, because the cached copy is checked against the file on every run. Run `chaudio cache:clear` after connecting a new device, or add `--refresh` to a switch to clear the cache and switch in one step. The cache holds nothing you cannot rebuild, so deleting the folder is always safe.
+chaudio caches the validated configuration and the device lookups in `~/.cache/chaudio` (or `$XDG_CACHE_HOME/chaudio`; set `CHAUDIO_CACHE_PATH` to use another folder). Editing the configuration file is picked up automatically, because the cached copy is checked against the file on every run. Run `chaudio cache:clear` after connecting a new device, or add `--refresh` to a switch to clear the cache and switch in one step. The cache holds nothing you cannot rebuild, so deleting the folder is always safe.
 
 ## Usage
 

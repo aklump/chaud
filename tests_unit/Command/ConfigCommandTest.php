@@ -6,6 +6,7 @@ use AKlump\ChangeAudio\Cache\CacheManager;
 use AKlump\ChangeAudio\Command\ConfigCommand;
 use AKlump\ChangeAudio\ConfigManager;
 use AKlump\ChangeAudio\Tests\Unit\TestingTraits\TestWithFilesTrait;
+use AKlump\ChangeAudio\Tests\Unit\TestingTraits\WriteUserConfigTrait;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -20,19 +21,20 @@ use Symfony\Component\Console\Tester\CommandTester;
 class ConfigCommandTest extends TestCase {
 
   use TestWithFilesTrait;
+  use WriteUserConfigTrait;
 
   private string $userHome;
 
   private ?string $originalCachePath;
 
   protected function setUp(): void {
-    $this->originalCachePath = getenv('CACHE_PATH') === FALSE ? NULL : getenv('CACHE_PATH');
+    $this->originalCachePath = getenv('CHAUDIO_CACHE_PATH') === FALSE ? NULL : getenv('CHAUDIO_CACHE_PATH');
     $this->userHome = $this->getTestFileFilepath('home/', TRUE);
-    putenv('CACHE_PATH=' . $this->getTestFileFilepath('cache/', TRUE));
+    putenv('CHAUDIO_CACHE_PATH=' . $this->getTestFileFilepath('cache/', TRUE));
   }
 
   protected function tearDown(): void {
-    putenv($this->originalCachePath === NULL ? 'CACHE_PATH' : 'CACHE_PATH=' . $this->originalCachePath);
+    putenv($this->originalCachePath === NULL ? 'CHAUDIO_CACHE_PATH' : 'CHAUDIO_CACHE_PATH=' . $this->originalCachePath);
     $this->deleteAllTestFiles();
   }
 
@@ -43,7 +45,7 @@ class ConfigCommandTest extends TestCase {
   }
 
   public function testInstallsDefaultConfigWhenMissingAndPrintsPath() {
-    $path = $this->userHome . '/.chaudio.yml';
+    $path = $this->getUserConfigPath($this->userHome);
     $this->assertFileDoesNotExist($path);
     $tester = $this->getTester();
     $this->assertSame(Command::SUCCESS, $tester->execute([]));
@@ -52,9 +54,8 @@ class ConfigCommandTest extends TestCase {
   }
 
   public function testExistingConfigIsNotOverwritten() {
-    $path = $this->userHome . '/.chaudio.yml';
     $contents = '{"options":[]}';
-    file_put_contents($path, $contents);
+    $path = $this->writeUserConfig($this->userHome, $contents);
     $tester = $this->getTester();
     $this->assertSame(Command::SUCCESS, $tester->execute([]));
     $this->assertSame($contents, file_get_contents($path));

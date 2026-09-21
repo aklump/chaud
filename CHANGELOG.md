@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **BREAKING:** The config file is now `~/.config/chaudio/config.yml`, following the XDG convention (`$XDG_CONFIG_HOME` is honored). An existing `~/.chaudio.yml` is moved there automatically the first time you run chaudio, with a notice.
+- The cache is now in `~/.cache/chaudio` (or `$XDG_CACHE_HOME/chaudio`) instead of `$TMPDIR/com.aklump.chaudio`. It is rebuilt on its own; the old folder can be deleted.
+- **BREAKING:** The environment variable that overrides the cache folder is renamed from `CACHE_PATH` to `CHAUDIO_CACHE_PATH`, matching `CHAUDIO_PHP`.
+
 ## [0.0.16] - 2026-09-21
 
 ### Changed

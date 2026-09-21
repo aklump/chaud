@@ -22,6 +22,15 @@ class ConfigManagerTest extends TestCase {
 
   private string $defaultConfig;
 
+  private string $configPath;
+
+  private function writeConfig(string $contents): void {
+    if (!is_dir(dirname($this->configPath))) {
+      mkdir(dirname($this->configPath), 0755, TRUE);
+    }
+    file_put_contents($this->configPath, $contents);
+  }
+
   public function testMissingDefaultConfigThrows() {
     $bogus = $this->getTestFileFilepath('bogus.json');
     $this->assertFileDoesNotExist($bogus);
@@ -50,7 +59,7 @@ class ConfigManagerTest extends TestCase {
   }
 
   public function testEditingTheConfigInvalidatesTheCache() {
-    $config_path = $this->userHome . '/' . ConfigManager::CONFIG_BASENAME;
+    $config_path = $this->configPath;
     $manager = new ConfigManager(new CacheManager(), $this->userHome, $this->defaultConfig);
     $config = $manager->get();
     $this->assertArrayNotHasKey('scripts', $config['options'][0]);
@@ -61,7 +70,7 @@ class ConfigManagerTest extends TestCase {
   }
 
   public function testDeletedConfigIsReinstalledRatherThanServedFromCache() {
-    $config_path = $this->userHome . '/' . ConfigManager::CONFIG_BASENAME;
+    $config_path = $this->configPath;
     $manager = new ConfigManager(new CacheManager(), $this->userHome, $this->defaultConfig);
     $a = $manager->get();
     $this->deleteTestFile($config_path);
@@ -71,7 +80,7 @@ class ConfigManagerTest extends TestCase {
   }
 
   public function testInvalidEditRemovesTheStaleCache() {
-    $config_path = $this->userHome . '/' . ConfigManager::CONFIG_BASENAME;
+    $config_path = $this->configPath;
     $manager = new ConfigManager(new CacheManager(), $this->userHome, $this->defaultConfig);
     $manager->get();
     file_put_contents($config_path, json_encode(['options' => []]));
@@ -88,7 +97,7 @@ class ConfigManagerTest extends TestCase {
   }
 
   public function testGetValidationErrorsDescribesAnInvalidConfigAndSkipsTheCache() {
-    file_put_contents($this->userHome . '/' . ConfigManager::CONFIG_BASENAME, json_encode(['options' => []]));
+    $this->writeConfig(json_encode(['options' => []]));
     $manager = new ConfigManager(new CacheManager(), $this->userHome, $this->defaultConfig);
     $manager->get();
     $this->assertNotEmpty($manager->getValidationErrors());
@@ -100,12 +109,64 @@ class ConfigManagerTest extends TestCase {
     file_put_contents($this->userHome . '/.chaudio.json', json_encode(['options' => $options]));
     $manager = new ConfigManager(new CacheManager(), $this->userHome, $this->defaultConfig);
     $this->assertSame(['options' => $options], $manager->get());
-    $this->assertFileExists($this->userHome . '/' . ConfigManager::CONFIG_BASENAME);
+    $this->assertFileExists($this->configPath);
     $this->assertSame([], $manager->getValidationErrors());
+    $this->assertStringContainsString('Converted your config from ' . $this->userHome . '/.chaudio.json', $manager->getNotices()[0]);
+  }
+
+  public function testLegacyYamlConfigIsMovedIntoTheConfigDirectory() {
+    $legacy_path = $this->userHome . '/.chaudio.yml';
+    file_put_contents($legacy_path, file_get_contents($this->defaultConfig));
+    $manager = new ConfigManager(new CacheManager(), $this->userHome, $this->defaultConfig);
+    $manager->get();
+    $this->assertFileDoesNotExist($legacy_path);
+    $this->assertFileEquals($this->defaultConfig, $this->configPath);
+    $this->assertSame([sprintf('📦 Moved your config from %s to %s', $legacy_path, $this->configPath)], $manager->getNotices());
+  }
+
+  public function testLegacyYamlConfigIsIgnoredOnceTheConfigExists() {
+    $legacy_path = $this->userHome . '/.chaudio.yml';
+    file_put_contents($legacy_path, 'legacy');
+    $this->writeConfig(file_get_contents($this->defaultConfig));
+    $manager = new ConfigManager(new CacheManager(), $this->userHome, $this->defaultConfig);
+    $manager->get();
+    $this->assertFileExists($legacy_path);
+    $this->assertSame([], $manager->getNotices());
+  }
+
+  public function testNoNoticesForAFreshInstall() {
+    $manager = new ConfigManager(new CacheManager(), $this->userHome, $this->defaultConfig);
+    $manager->get();
+    $this->assertSame([], $manager->getNotices());
+  }
+
+  public function testXdgConfigHomeIsUsedForTheRealHome() {
+    $original = [$_SERVER['HOME'] ?? NULL, getenv('XDG_CONFIG_HOME')];
+    $xdg = rtrim($this->getTestFileFilepath('xdg/', TRUE), '/');
+    try {
+      $_SERVER['HOME'] = $this->userHome;
+      putenv('XDG_CONFIG_HOME=' . $xdg);
+      $this->assertSame($xdg . '/chaudio/config.yml', (new ConfigManager(new CacheManager()))->path());
+    }
+    finally {
+      $_SERVER['HOME'] = $original[0];
+      putenv($original[1] === FALSE ? 'XDG_CONFIG_HOME' : 'XDG_CONFIG_HOME=' . $original[1]);
+    }
+  }
+
+  public function testXdgConfigHomeIsIgnoredWhenAHomeIsGiven() {
+    $original = getenv('XDG_CONFIG_HOME');
+    try {
+      putenv('XDG_CONFIG_HOME=/somewhere/else');
+      $this->assertSame($this->configPath, (new ConfigManager(new CacheManager(), $this->userHome))->path());
+    }
+    finally {
+      putenv($original === FALSE ? 'XDG_CONFIG_HOME' : 'XDG_CONFIG_HOME=' . $original);
+    }
   }
 
   public function testLegacyDeviceKeyIsReadAsName() {
-    file_put_contents($this->userHome . '/' . ConfigManager::CONFIG_BASENAME, "options:\n  - label: A\n    input: {device: Mic}\n    output: {device: 71}\n  - label: B\n    output: {name: Speakers}\n");
+    $this->writeConfig("options:\n  - label: A\n    input: {device: Mic}\n    output: {device: 71}\n  - label: B\n    output: {name: Speakers}\n");
     $manager = new ConfigManager(new CacheManager(), $this->userHome, $this->defaultConfig);
     $config = $manager->get();
     $this->assertSame([], $manager->getValidationErrors());
@@ -126,27 +187,26 @@ class ConfigManagerTest extends TestCase {
     (new ConfigManager(new CacheManager(), $this->userHome, $this->defaultConfig))->get();
     $this->assertFileExists($this->cacheDir . '/config.php', 'Assert cache was created.');
 
-    $this->assertFileExists($this->userHome . '/' . ConfigManager::CONFIG_BASENAME, 'Assert config was created.');
+    $this->assertFileExists($this->configPath, 'Assert config was created.');
 
     $this->assertFileExists($this->defaultConfig, 'Assert default config exists.');
-    $this->assertFileEquals($this->defaultConfig, $this->userHome . '/' . ConfigManager::CONFIG_BASENAME, 'Assert config was created with default values.');
+    $this->assertFileEquals($this->defaultConfig, $this->configPath, 'Assert config was created with default values.');
   }
 
   protected function setUp(): void {
     $this->userHome = $this->getTestFileFilepath('user/', TRUE);
     chmod($this->userHome, 0777);
-    $this->deleteTestFile($this->userHome . '/' . ConfigManager::CONFIG_BASENAME);
-    $this->assertFileDoesNotExist($this->userHome . '/' . ConfigManager::CONFIG_BASENAME);
+    $this->deleteTestFile($this->userHome);
+    $this->userHome = rtrim($this->getTestFileFilepath('user/', TRUE), '/');
+    $this->configPath = $this->userHome . '/.config/chaudio/config.yml';
 
     $this->cacheDir = $this->getTestFileFilepath('cache/');
     $this->deleteTestFile($this->cacheDir);
-    putenv('CACHE_PATH=' . $this->cacheDir);
+    putenv('CHAUDIO_CACHE_PATH=' . $this->cacheDir);
     $this->assertDirectoryDoesNotExist($this->cacheDir);
 
     $this->defaultConfig = realpath($this->getTestFileFilepath() . '/../default_config.yml');
     $this->assertFileExists($this->defaultConfig);
     parent::setUp();
   }
-
-
 }

@@ -4,6 +4,7 @@
 namespace AKlump\ChangeAudio\Cache;
 
 use AKlump\ChangeAudio\App;
+use AKlump\ChangeAudio\GetXdgBaseDirectory;
 use RuntimeException;
 
 class CacheManager {
@@ -11,13 +12,13 @@ class CacheManager {
   /**
    * Get the cache directory, creating it if necessary.
    *
-   * The CACHE_PATH environment variable overrides the default, which is
-   * TMPDIR (or TEMP, or /tmp) plus the app's cache directory name.
+   * The CHAUDIO_CACHE_PATH environment variable overrides the default, which
+   * is ~/.cache/chaudio, or $XDG_CACHE_HOME/chaudio when that is set.
    *
    * @return string
    */
   public function getPath(): string {
-    $path = getenv('CACHE_PATH');
+    $path = getenv('CHAUDIO_CACHE_PATH');
     if (empty($path)) {
       $path = $this->getDefaultPath();
     }
@@ -47,8 +48,8 @@ class CacheManager {
   }
 
   private function getDefaultPath(): string {
-    $base = getenv('TMPDIR') ?: (getenv('TEMP') ?: '/tmp');
+    $home = getenv('HOME') ?: sys_get_temp_dir();
 
-    return preg_replace('#/$#', '', $base) . '/' . App::CACHE_DIRNAME;
+    return (new GetXdgBaseDirectory())('XDG_CACHE_HOME', '.cache', $home) . '/' . App::BIN;
   }
 }

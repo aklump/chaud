@@ -54,14 +54,14 @@ class GetAudioEngineTest extends TestCase {
     if (exec('which SwitchAudioSource')) {
       $this->markTestSkipped('SwitchAudioSource is installed in a system directory and takes priority.');
     }
-    putenv('CACHE_PATH=' . $this->getTestFileFilepath('cache/', TRUE));
+    putenv('CHAUDIO_CACHE_PATH=' . $this->getTestFileFilepath('cache/', TRUE));
     parent::setUp();
   }
 
   protected function tearDown(): void {
     putenv(isset($this->originalHome) ? 'HOME=' . $this->originalHome : 'HOME');
     putenv(isset($this->originalPath) ? 'PATH=' . $this->originalPath : 'PATH');
-    putenv('CACHE_PATH');
+    putenv('CHAUDIO_CACHE_PATH');
     $this->deleteAllTestFiles();
     parent::tearDown();
   }

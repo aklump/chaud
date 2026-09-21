@@ -23,13 +23,13 @@ class CacheClearCommandTest extends TestCase {
   private ?string $originalCachePath;
 
   protected function setUp(): void {
-    $this->originalCachePath = getenv('CACHE_PATH') === FALSE ? NULL : getenv('CACHE_PATH');
+    $this->originalCachePath = getenv('CHAUDIO_CACHE_PATH') === FALSE ? NULL : getenv('CHAUDIO_CACHE_PATH');
     $this->cacheDir = $this->getTestFileFilepath('cache/', TRUE);
-    putenv('CACHE_PATH=' . $this->cacheDir);
+    putenv('CHAUDIO_CACHE_PATH=' . $this->cacheDir);
   }
 
   protected function tearDown(): void {
-    putenv($this->originalCachePath === NULL ? 'CACHE_PATH' : 'CACHE_PATH=' . $this->originalCachePath);
+    putenv($this->originalCachePath === NULL ? 'CHAUDIO_CACHE_PATH' : 'CHAUDIO_CACHE_PATH=' . $this->originalCachePath);
     $this->deleteAllTestFiles();
   }
 

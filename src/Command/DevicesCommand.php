@@ -50,6 +50,9 @@ class DevicesCommand extends Command {
     }
 
     $options = $this->config->get()['options'] ?? [];
+    foreach ($this->config->getNotices() as $notice) {
+      $error_output->writeln($notice, OutputInterface::OUTPUT_RAW);
+    }
     $table = new Table($output);
     $table->setHeaders(['Type', 'ID', 'Name', 'UID', 'In your options']);
     foreach ($devices as $device) {

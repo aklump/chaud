@@ -11,6 +11,7 @@ use AKlump\ChangeAudio\DeviceReference;
 use AKlump\ChangeAudio\Engine\EngineInterface;
 use AKlump\ChangeAudio\GetAudioEngine;
 use AKlump\ChangeAudio\Tests\Unit\TestingTraits\TestWithFilesTrait;
+use AKlump\ChangeAudio\Tests\Unit\TestingTraits\WriteUserConfigTrait;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -27,24 +28,25 @@ use Symfony\Component\Console\Tester\CommandTester;
 class DevicesCommandTest extends TestCase {
 
   use TestWithFilesTrait;
+  use WriteUserConfigTrait;
 
   private string $userHome;
 
   private ?string $originalCachePath;
 
   protected function setUp(): void {
-    $this->originalCachePath = getenv('CACHE_PATH') === FALSE ? NULL : getenv('CACHE_PATH');
+    $this->originalCachePath = getenv('CHAUDIO_CACHE_PATH') === FALSE ? NULL : getenv('CHAUDIO_CACHE_PATH');
     $this->userHome = $this->getTestFileFilepath('home/', TRUE);
-    putenv('CACHE_PATH=' . $this->getTestFileFilepath('cache/', TRUE));
+    putenv('CHAUDIO_CACHE_PATH=' . $this->getTestFileFilepath('cache/', TRUE));
   }
 
   protected function tearDown(): void {
-    putenv($this->originalCachePath === NULL ? 'CACHE_PATH' : 'CACHE_PATH=' . $this->originalCachePath);
+    putenv($this->originalCachePath === NULL ? 'CHAUDIO_CACHE_PATH' : 'CHAUDIO_CACHE_PATH=' . $this->originalCachePath);
     $this->deleteAllTestFiles();
   }
 
   private function writeConfig(array $options): void {
-    file_put_contents($this->userHome . '/.chaudio.yml', json_encode(['options' => $options]));
+    $this->writeUserConfig($this->userHome, json_encode(['options' => $options]));
   }
 
   private function getDevices(): array {
