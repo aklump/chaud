@@ -1,8 +1,25 @@
-#!/usr/bin/env php
-<?php
-// SPDX-License-Identifier: BSD-3-Clause
+#!/usr/bin/env bash
+# SPDX-License-Identifier: BSD-3-Clause
+#
+# Runs chaudio under the PHP chosen, in order, by:
+#   1. $CHAUDIO_PHP
+#   2. .php-version in this folder, written by Composer at install time: an
+#      absolute path to a PHP binary, or else a phpenv version name
+#   3. the first php on $PATH
+s="${BASH_SOURCE[0]}";while [ -h "$s" ];do d="$(cd -P "$(dirname "$s")" && pwd)";s="$(readlink "$s")";[[ $s != /* ]] && s="$d/$s";done;__DIR__=$(cd -P "$(dirname "$s")" && pwd)
 
-use AKlump\ChangeAudio\Console\ApplicationFactory;
-
-require_once __DIR__ . '/vendor/autoload.php';
-exit(ApplicationFactory::create()->run());
+php="$CHAUDIO_PHP"
+if [[ -z "$php" && -f "$__DIR__/.php-version" ]]; then
+  read -r version _ < "$__DIR__/.php-version"
+  if [[ "$version" == /* ]]; then
+    php="$version"
+  elif [[ -n "$version" && "$version" != system ]]; then
+    php="${PHPENV_ROOT:-$HOME/.phpenv}/versions/$version/bin/php"
+  fi
+fi
+[[ -z "$php" ]] && php="$(command -v php)"
+if [[ ! -x "$php" ]]; then
+  echo "❌ PHP not found${php:+ at $php}; set CHAUDIO_PHP, or fix $__DIR__/.php-version" >&2
+  exit 1
+fi
+exec "$php" "$__DIR__/bin/chaudio.php" "$@"

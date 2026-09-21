@@ -1,0 +1,7 @@
+<?php
+// SPDX-License-Identifier: BSD-3-Clause
+
+use AKlump\ChangeAudio\Console\ApplicationFactory;
+
+require_once __DIR__ . '/../vendor/autoload.php';
+exit(ApplicationFactory::create()->run());

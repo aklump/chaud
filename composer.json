@@ -34,5 +34,8 @@
   "require-dev": {
     "phpunit/phpunit": "^9.6"
   },
-  "license": "BSD-3-Clause"
+  "license": "BSD-3-Clause",
+  "scripts": {
+    "post-create-project-cmd": "@php bin/record_php.php"
+  }
 }

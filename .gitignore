@@ -9,3 +9,6 @@ bin/benchmark.php
 
 # Riptide artifacts (cloud-synced)
 .humanlayer/tasks/
+
+# Written by Composer at install time; see the chaudio launcher.
+/.php-version
