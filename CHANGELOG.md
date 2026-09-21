@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- chaudio can run under a PHP other than your default `php`, including from Alfred. At install time, Composer records the PHP it ran under in `.php-version`: the phpenv version name, or otherwise the binary's path, and `chaudio` uses it. Set `CHAUDIO_PHP` to override. See "Using a different PHP" in the README.
+
 ## [0.0.13] - 2026-09-20
 
 - Edits to `~/.chaudio.yml` now take effect on the next run. The cached copy of the config is stored with a hash of the file and is rebuilt when the file changes, so `cache:clear` and `--refresh` are only needed after connecting a new device. Before, a change such as adding `scripts` was ignored until the cache was cleared.

@@ -2,7 +2,7 @@
 # @file Compile documentation using Knowledge
 
 # ========= Start config =========
-php_dir="$(find /Applications/MAMP/bin/php -maxdepth 1 -type d -name 'php7.4.*' | sort -V | tail -n 1)"
+php_dir="$(find /Applications/MAMP/bin/php -maxdepth 1 -type d -name 'php8.2.*' | sort -V | tail -n 1)"
 php="$php_dir/bin/php"
 know="$HOME/Code/Packages/php/knowledge/app/bin/book.php"
 # ========= End config =========
