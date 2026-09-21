@@ -6,3 +6,6 @@ yarn.lock
 # Dev
 bin/benchmark.php
 .idea/
+
+# Riptide artifacts (cloud-synced)
+.humanlayer/tasks/
