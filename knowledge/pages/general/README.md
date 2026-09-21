@@ -15,7 +15,7 @@ On a Mac, moving from a headset call to speakerphone means two trips into Sound 
 
 ## Quick Start
 
-Install into `~/opt/chaudio`, add the default audio engine, and link the command onto your `$PATH` (this assumes `~/bin` is on it):
+Install into `~/opt/chaudio`, add the default audio engine, and link the command onto your `$PATH` (this assumes `~/bin` is on it, and that your default `php` is 8.1 or newer; if it is not, see [Using a different PHP](#using-a-different-php)):
 
 ```shell
 mkdir -p ~/opt && cd ~/opt
@@ -56,7 +56,7 @@ If the highlight does not move, run the switch again with `-v` (`chaudio s h -v`
 ## Requirements
 
 - macOS. Every supported audio engine is a macOS tool.
-- PHP 8.1 or newer with the `json` extension, and Composer.
+- PHP 8.1 or newer with the `json` extension, and Composer. It does not have to be your default `php`; see [Using a different PHP](#using-a-different-php).
 - One audio engine (see [Installation](#installation)). The default engine needs Node.js with npm or Yarn.
 
 ## Installation
@@ -73,6 +73,34 @@ This creates a `chaudio` folder (that is the package name). Link its `chaudio` s
 cd ~/bin
 ln -s ~/opt/chaudio/chaudio .
 ```
+
+### Using a different PHP
+
+chaudio remembers which PHP ran Composer when you installed it, and keeps using that PHP, even from the Alfred workflow, which does not load your shell's aliases, `$PATH` changes or phpenv. It writes that choice to `.php-version` in the `chaudio` folder. So if your default `php` is older than 8.1, run the install under a newer one.
+
+**With [phpenv](https://phpenv.org/)**, choose the version for the install, and its name is recorded, as `phpenv local` would:
+
+```shell
+PHPENV_VERSION=8.3 composer create-project …
+```
+
+To change it later, run `phpenv local 8.4` in the `chaudio` folder.
+
+**Without phpenv**, run Composer with the newer PHP's full path, and that path is recorded:
+
+```shell
+/opt/homebrew/opt/php@8.3/bin/php "$(command -v composer)" create-project …
+```
+
+Replace `…` with the rest of the `create-project` command above. A Homebrew PHP is recorded by its `opt` path, which survives `brew upgrade`. If that PHP moves, edit the path in `.php-version`, or reinstall. A path is not something phpenv understands, so if you adopt phpenv later, run `phpenv local` in the `chaudio` folder to replace it with a version name.
+
+chaudio picks its PHP in this order:
+
+1. The `CHAUDIO_PHP` environment variable, for example `CHAUDIO_PHP=/usr/local/opt/php@8.4/bin/php chaudio s h`.
+2. `.php-version`: a path is run as is; a version name runs that phpenv version from `~/.phpenv/versions` (or `$PHPENV_ROOT/versions`), without needing phpenv's shims on your `$PATH`.
+3. The first `php` on your `$PATH`.
+
+If the PHP it picks is missing, chaudio prints the path it tried. If it is too old, chaudio stops with an error that names the version it needs.
 
 ### Audio engine
 
@@ -92,7 +120,7 @@ The keyword is `chauds`, not `chaudio switch`, on purpose: Alfred is for quick, 
 
 ### Updating
 
-Delete the `chaudio` folder you installed earlier, then repeat the installation, including the audio engine. Your configuration lives in your home directory, so deleting the folder does not remove it.
+Delete the `chaudio` folder you installed earlier, then repeat the installation, including the audio engine and, if you used one, the [different PHP](#using-a-different-php). Your configuration lives in your home directory, so deleting the folder does not remove it.
 
 ## Configuration
 

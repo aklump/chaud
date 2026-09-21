@@ -1,7 +1,8 @@
 vendor/
-composer.lock
 node_modules/
+composer.lock
 yarn.lock
+package-lock.json
 
 # Dev
 bin/benchmark.php
