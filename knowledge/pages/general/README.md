@@ -15,13 +15,13 @@ On a Mac, moving from a headset call to speakerphone means two trips into Sound 
 
 ## Quick Start
 
-Install into `~/opt/chaudio`, add the default audio engine, and link the command onto your `$PATH` (this assumes `~/bin` is on it, and that your default `php` is 8.1 or newer; if it is not, see [Using a different PHP](#using-a-different-php)):
+Install into `~/.local/share/chaudio`, add the default audio engine, and link the command into `~/.local/bin` (this assumes `~/.local/bin` is on your `$PATH`, as installers such as Claude Code's and pipx's ask for, and that your default `php` is 8.1 or newer; if it is not, see [Using a different PHP](#using-a-different-php)):
 
 ```shell
-mkdir -p ~/opt && cd ~/opt
+mkdir -p ~/.local/share ~/.local/bin && cd ~/.local/share
 {{ composer.create_project|raw }}
 cd chaudio && npm install
-ln -s ~/opt/chaudio/chaudio ~/bin/chaudio
+ln -s ~/.local/share/chaudio/chaudio ~/.local/bin/chaudio
 ```
 
 Print the configuration file's path. The first run creates it from the defaults:
@@ -61,17 +61,16 @@ If the highlight does not move, run the switch again with `-v` (`chaudio s h -v`
 
 ## Installation
 
-chaudio is installed from its GitHub repository, <https://github.com/aklump/chaudio>. In a terminal, change to where you want the app to live (the examples use `~/opt`), then install it with Composer:
+chaudio is installed from its GitHub repository, <https://github.com/aklump/chaudio>. In a terminal, change to where you want the app to live (the examples use `~/.local/share`, the usual place for per-user apps), then install it with Composer:
 
 ```shell
 {{ composer.create_project|raw }}
 ```
 
-This creates a `chaudio` folder (that is the package name). Link its `chaudio` script into a directory on your `$PATH`, such as `~/bin`:
+This creates a `chaudio` folder (that is the package name). Link its `chaudio` script into a directory on your `$PATH`, such as `~/.local/bin`:
 
 ```shell
-cd ~/bin
-ln -s ~/opt/chaudio/chaudio .
+ln -s ~/.local/share/chaudio/chaudio ~/.local/bin/chaudio
 ```
 
 ### Using a different PHP
@@ -114,7 +113,7 @@ Only macos-audio-devices can list your devices. Under either of the other two, `
 
 ### Alfred workflow
 
-The repository also holds `Change Audio.alfredworkflow`. Double-click it to add the workflow to [Alfred](https://www.alfredapp.com), then type `chauds` followed by a label or alias (`chauds b`) to switch without opening a terminal. The workflow runs `~/bin/chaudio switch "$1" 2>&1`, so it expects the symlink above at exactly that path. Error messages, which chaudio writes to stderr, are merged into the output so that they appear in the notification too.
+The repository also holds `Change Audio.alfredworkflow`. Double-click it to add the workflow to [Alfred](https://www.alfredapp.com), then type `chauds` followed by a label or alias (`chauds b`) to switch without opening a terminal. The workflow runs `~/.local/share/chaudio/chaudio switch "$1" 2>&1`, so it expects chaudio installed at exactly that path; if you installed it elsewhere, edit the workflow's Run Script to match. It runs the install directly rather than your symlink, so it does not depend on your `$PATH`. Error messages, which chaudio writes to stderr, are merged into the output so that they appear in the notification too.
 
 The keyword is `chauds`, not `chaudio switch`, on purpose: Alfred is for quick, repeated switching, so the keyword is as short as it can be while still being memorable, and it does only one job, switching (the `s` stands for switch). In a terminal you use the full `chaudio switch <label>` (or `chaudio s <label>`), because there the command name also gives you `devices`, `config` and `cache:clear`, and a self-describing command is easier to remember and to use in scripts. The workflow still calls `switch` by its full name, so it behaves exactly like the terminal command.
 

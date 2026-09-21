@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- The install instructions now use `~/.local/share/chaudio`, linked into `~/.local/bin`, instead of `~/opt/chaudio` and `~/bin`. The Alfred workflow runs `~/.local/share/chaudio/chaudio` directly; re-import `Change Audio.alfredworkflow`, or edit its Run Script if chaudio lives elsewhere.
+
+## [0.0.15] - 2026-09-21
+
+### Changed
+
 - chaudio can run under a PHP other than your default `php`, including from Alfred. At install time, Composer records the PHP it ran under in `.php-version`: the phpenv version name, or otherwise the binary's path, and `chaudio` uses it. Set `CHAUDIO_PHP` to override. See "Using a different PHP" in the README.
 
 ## [0.0.13] - 2026-09-20
